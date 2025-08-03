@@ -149,8 +149,8 @@ function App() {
       
       Template: ${template.name}
       Description: ${template.description}
-      Phase: ${template.phase}
-      Document Code: ${template.docCode}
+      Phase: ${template.phase || 'N/A'}
+      Document Code: ${template.docCode || 'N/A'}
       Output Format: ${outputFormat}
       
       Additional context: ${customPrompt || 'Standard implementation for AQUA V. aerospace program'}
@@ -246,6 +246,10 @@ function App() {
   }
 
   const renderPreview = (content: string, format: string) => {
+    if (!content || !format) {
+      return <div className="text-muted-foreground">No content available</div>
+    }
+    
     if (format === 'html') {
       return <div dangerouslySetInnerHTML={{ __html: content }} className="prose max-w-none" />
     } else if (format === 'markdown') {
@@ -355,10 +359,10 @@ function App() {
                       <div className="space-y-4">
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <span className="font-mono bg-muted px-2 py-1 rounded">
-                            {template.phase}
+                            {template.phase || 'N/A'}
                           </span>
-                          <span>{template.docCode}</span>
-                          <span>{template.version}</span>
+                          <span>{template.docCode || 'N/A'}</span>
+                          <span>{template.version || 'v1.0.0'}</span>
                         </div>
                         
                         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -458,7 +462,7 @@ function App() {
                                           {copied ? <Check size={16} /> : <Copy size={16} />}
                                           {copied ? 'Copied!' : 'Copy'}
                                         </Button>
-                                        <Badge variant="secondary">{currentDocument.format.toUpperCase()}</Badge>
+                                        <Badge variant="secondary">{currentDocument.format?.toUpperCase() || 'UNKNOWN'}</Badge>
                                       </div>
                                     </div>
                                     <ScrollArea className="h-96 w-full border rounded-lg">
@@ -482,7 +486,7 @@ function App() {
                                   <div className="space-y-4">
                                     <div className="flex items-center justify-between">
                                       <h3 className="text-lg font-semibold">Preview Rendering</h3>
-                                      <Badge variant="secondary">{currentDocument.format.toUpperCase()}</Badge>
+                                      <Badge variant="secondary">{currentDocument.format?.toUpperCase() || 'UNKNOWN'}</Badge>
                                     </div>
                                     <Tabs defaultValue="preview" className="w-full">
                                       <TabsList>
@@ -522,7 +526,7 @@ function App() {
                                       <h3 className="text-lg font-semibold">
                                         {currentStep.step === 'formatting' ? 'Formatting Document...' : 'Ready to Publish'}
                                       </h3>
-                                      <Badge variant="secondary">{currentDocument.format.toUpperCase()}</Badge>
+                                      <Badge variant="secondary">{currentDocument.format?.toUpperCase() || 'UNKNOWN'}</Badge>
                                     </div>
                                     
                                     {currentStep.step === 'complete' && (
@@ -541,7 +545,7 @@ function App() {
                                       <Label>Document Details</Label>
                                       <div className="bg-muted p-3 rounded-lg text-sm">
                                         <div><strong>Name:</strong> {currentDocument.name}</div>
-                                        <div><strong>Format:</strong> {currentDocument.format.toUpperCase()}</div>
+                                        <div><strong>Format:</strong> {currentDocument.format?.toUpperCase() || 'UNKNOWN'}</div>
                                         <div><strong>Repository:</strong> {currentDocument.metadata.repository}</div>
                                         <div><strong>Size:</strong> {(currentDocument.rawContent.length / 1024).toFixed(1)} KB</div>
                                       </div>
@@ -597,7 +601,7 @@ function App() {
                         </CardTitle>
                         <CardDescription>
                           Created: {new Date(doc.metadata.created).toLocaleDateString()} • 
-                          Format: {doc.format.toUpperCase()} • 
+                          Format: {doc.format?.toUpperCase() || 'UNKNOWN'} • 
                           Version: {doc.metadata.version} • 
                           Repository: {doc.metadata.repository}
                         </CardDescription>
