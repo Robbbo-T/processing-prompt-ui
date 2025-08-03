@@ -658,10 +658,6 @@ function App() {
                   </CardContent>
                 </Card>
               )}
-                    </p>
-                  </CardContent>
-                </Card>
-              )}
             </div>
           </TabsContent>
 
