@@ -1,93 +1,54 @@
 # Processing Prompt UI
 
-> AI-Powered Template Generator for Dynamic Document Creation
+An AI-powered template generation interface that enables users to build, customize, and deploy document templates with real-time generation and multi-format support.
 
-A sophisticated interface that enables users to build, modify, and execute prompts in real-time while generating professional documentation templates. Built for the AQUA V. aerospace program, this tool streamlines the document generation process across all project lifecycle phases.
+![Processing Prompt UI](https://img.shields.io/badge/React-18+-61DAFB?style=flat&logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5+-3178C6?style=flat&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3+-06B6D4?style=flat&logo=tailwindcss&logoColor=white)
+![GitHub Spark](https://img.shields.io/badge/GitHub_Spark-Enabled-181717?style=flat&logo=github&logoColor=white)
 
-![Processing Prompt UI](https://img.shields.io/badge/Status-Production%20Ready-green)
-![React](https://img.shields.io/badge/React-18.x-blue)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)
-![Tailwind](https://img.shields.io/badge/Tailwind-3.x-06B6D4)
+## ✨ Features
 
-## 🚀 Features
+### 🤖 AI-Powered Document Generation
+- **Smart Template Processing**: Generate comprehensive documents from structured templates using advanced AI
+- **Multi-Format Support**: Output in Markdown, HTML5, or Word document formats
+- **Context-Aware Generation**: Customize outputs with project-specific context and requirements
 
-### Core Capabilities
-- **Dynamic Template Generation**: AI-powered document creation from standardized templates
-- **Multi-Format Support**: Generate documents in Markdown, HTML5, or Word format
-- **Real-Time Preview**: Live preview of generated content with raw code inspection
-- **Repository Integration**: Save to local or network repositories with version control
-- **Phase-Based Organization**: Templates organized by project lifecycle phases (STR, CON, DES, etc.)
+### 🔄 Interactive Generation Workflow
+- **Step-by-Step Process**: Guided workflow from generation → raw review → preview → formatting → publishing
+- **Real-Time Progress**: Visual progress tracking with detailed status updates
+- **Content Validation**: Review and approve generated content before final output
 
-### Generation Workflow
-1. **Template Selection**: Choose from 161+ aerospace-grade templates
-2. **Raw Code Review**: Inspect generated markup before rendering
-3. **Live Preview**: See formatted output with edit capabilities
-4. **Format & Publish**: Finalize and save to designated repositories
+### 📋 Template Library Management
+- **Comprehensive Template Catalog**: Pre-built templates for aerospace documentation (AQUA V. standard)
+- **Phase-Based Organization**: Templates organized by project lifecycle phases (STR, DES, TST, etc.)
+- **Smart Search & Filtering**: Find templates by name, description, phase, or document code
+- **Criticality Indicators**: Visual indicators for Critical, Essential, Important, and Standard templates
 
-### Advanced Features
-- **Criticality Filtering**: Templates categorized by importance (Critical, Essential, Important, Standard)
-- **Search & Filter**: Find templates by name, description, or document code
-- **Version Management**: Semantic versioning with automated tracking
-- **Compliance Integration**: Built-in AQUA V. nomenclature and standards
+### 📁 Repository Integration
+- **Local & Network Storage**: Save generated documents to local or network repositories
+- **Version Control**: Track document versions and modifications
+- **Metadata Management**: Comprehensive document metadata including author, creation date, and repository path
 
-## 🏗️ Architecture
+### 🎨 Modern User Experience
+- **Responsive Design**: Optimized for desktop, tablet, and mobile devices
+- **Dark/Light Theme Support**: Elegant color scheme with OKLCH color space
+- **Smooth Animations**: Subtle Framer Motion animations for enhanced interaction
+- **Accessibility First**: WCAG 2.1 AA compliant interface
 
-### Tech Stack
-- **Frontend**: React 18 + TypeScript
-- **Styling**: Tailwind CSS + shadcn/ui components
-- **State Management**: React hooks with persistent storage
-- **AI Integration**: GitHub Spark LLM API
-- **Animation**: Framer Motion for smooth interactions
-
-### Key Components
-```
-src/
-├── App.tsx                 # Main application component
-├── components/ui/          # shadcn/ui component library
-├── assets/                 # Static assets (images, docs, etc.)
-├── lib/utils.ts           # Utility functions
-└── index.css              # Global styles and theme
-```
-
-## 🎯 Use Cases
-
-### Aerospace Documentation
-- Generate technical specifications (SRS, HRD, IRD)
-- Create compliance documentation (TC, STC, TSO)
-- Produce maintenance manuals (AMM, CMM, SRM)
-- Build test plans and reports (QTP, QTR, FTP)
-
-### Enterprise Applications
-- Standard Operating Procedures (SOPs)
-- Quality Management Systems (QMS)
-- Risk Assessment Reports
-- Training Documentation
-
-## 📋 Template Categories
-
-| Phase | Description | Template Count | Examples |
-|-------|-------------|----------------|----------|
-| **STR** | Strategy & Planning | 8 | Business Strategy Plan, Risk Assessment |
-| **CON** | Conceptual & Feasibility | 10 | System Requirements, Feasibility Study |
-| **DES** | Design & Engineering | 24 | Software Requirements, Design Specs |
-| **DEV** | Development & Prototyping | 16 | Implementation Plans, Build Specs |
-| **TST** | Testing & Validation | 14 | Test Plans, Quality Reports |
-| **INT** | Integration & Verification | 12 | Integration Tests, Config Management |
-| **CRT** | Certification & Compliance | 18 | Type Certificates, Safety Assessments |
-| **PRD** | Production & Manufacturing | 18 | Manufacturing Specs, Quality Control |
-| **OPS** | Operations & Service | 15 | Flight Manuals, Operating Procedures |
-| **MNT** | Maintenance & Support | 14 | Maintenance Manuals, Service Bulletins |
-
-## 🛠️ Installation
+## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ 
-- npm or yarn package manager
 
-### Setup
+- Node.js 18 or higher
+- GitHub Spark development environment
+- Modern web browser with ES2022 support
+
+### Installation
+
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/processing-prompt-ui.git
+git clone https://github.com/your-username/processing-prompt-ui.git
 cd processing-prompt-ui
 
 # Install dependencies
@@ -97,121 +58,197 @@ npm install
 npm run dev
 ```
 
-### Environment Configuration
-The application uses GitHub Spark runtime APIs which are automatically configured in the deployment environment. No additional environment variables are required for basic operation.
+The application will be available at `http://localhost:5173`
 
-## 🎮 Usage
+## 🏗️ Architecture
 
-### Basic Workflow
-1. **Select Template**: Browse or search the template library
-2. **Configure Generation**: Choose output format and repository path
-3. **Add Context**: Provide custom prompts for specific requirements
-4. **Generate**: AI creates the document based on template and context
-5. **Review**: Inspect raw code and preview rendered output
-6. **Publish**: Save to local or network repository
+### Tech Stack
 
-### Advanced Features
-- **Custom Prompts**: Add specific context for tailored document generation
-- **Repository Management**: Configure local and network storage locations
-- **Version Control**: Track document versions and changes
-- **Batch Processing**: Generate multiple documents from template sets
+- **Frontend Framework**: React 18 with TypeScript
+- **Styling**: Tailwind CSS + shadcn/ui components
+- **State Management**: React hooks + GitHub Spark KV storage
+- **AI Integration**: GitHub Spark LLM API
+- **Animation**: Framer Motion
+- **Icons**: Phosphor Icons
+- **Build Tool**: Vite
 
-## 🎨 Customization
+### Project Structure
 
-### Theme Configuration
-The application uses a sophisticated color system based on OKLCH color space:
+```
+src/
+├── components/
+│   └── ui/              # shadcn/ui components (pre-installed)
+├── lib/
+│   └── utils.ts         # Utility functions
+├── assets/              # Static assets
+├── App.tsx              # Main application component
+├── index.css            # Global styles and theme
+└── main.tsx             # Application entry point
+```
+
+## 🎯 Usage
+
+### Generating Documents
+
+1. **Browse Templates**: Explore the template library organized by project phases
+2. **Select Template**: Click "Generate Template" on any template card
+3. **Configure Generation**:
+   - Choose output format (Markdown, HTML5, or Word)
+   - Set repository path (optional)
+   - Add custom prompt context (optional)
+4. **Review Process**:
+   - **Raw Review**: Examine generated code before rendering
+   - **Preview**: See how the document will appear when rendered
+   - **Final Check**: Review formatting and metadata
+5. **Publish**: Save the document to your specified repository
+
+### Template Phases
+
+The system supports templates across all project lifecycle phases:
+
+| Phase | Description | Template Count |
+|-------|-------------|----------------|
+| **STR** | Strategy & Planning | 8 templates |
+| **CON** | Conceptual & Feasibility | 10 templates |
+| **DES** | Design & Engineering | 24 templates |
+| **DEV** | Development & Prototyping | 16 templates |
+| **TST** | Testing & Validation | 14 templates |
+| **INT** | Integration & Verification | 12 templates |
+| **CRT** | Certification & Compliance | 18 templates |
+| **PRD** | Production & Manufacturing | 18 templates |
+| **OPS** | Operations & Service | 15 templates |
+| **MNT** | Maintenance & Support | 14 templates |
+
+### Repository Management
+
+- **Local Repository**: Documents saved to local file system
+- **Network Repository**: Integration with SMB/network shares
+- **Version Control**: Automatic versioning and change tracking
+- **Metadata Tracking**: Author, creation date, modification history
+
+## 🔧 Configuration
+
+### Environment Variables
+
+The application runs within GitHub Spark and automatically configures:
+
+- `spark.llm()` - AI generation service
+- `spark.kv()` - Persistent key-value storage
+- `spark.user()` - User context and permissions
+
+### Theme Customization
+
+Modify the CSS custom properties in `src/index.css`:
 
 ```css
 :root {
-  --primary: oklch(0.45 0.15 240);      /* Deep blue for primary actions */
-  --accent: oklch(0.7 0.18 50);         /* Warm accent for highlights */
-  --background: oklch(0.98 0.02 240);   /* Subtle blue-tinted background */
+  --background: oklch(0.98 0.02 240);
+  --foreground: oklch(0.2 0.02 240);
+  --primary: oklch(0.45 0.15 240);
+  --secondary: oklch(0.95 0.02 240);
+  --accent: oklch(0.7 0.18 50);
+  /* ... more theme variables */
 }
 ```
 
-### Template Extensions
-Add custom templates by extending the template interface:
+## 🧪 Development
 
-```typescript
-interface Template {
-  id: string
-  name: string
-  description: string
-  phase: string
-  type: string
-  docCode: string
-  version: string
-  criticality: 'Critical' | 'Essential' | 'Important' | 'Standard'
-}
+### Local Development
+
+```bash
+# Start development server with hot reload
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
 ```
 
-## 🔧 API Integration
+### Code Quality
 
-### GitHub Spark LLM
-```typescript
-// Generate content with AI
-const prompt = spark.llmPrompt`Generate a ${template.name} document...`
-const content = await spark.llm(prompt)
+```bash
+# Type checking
+npm run type-check
 
-// Store with persistence
-const [documents, setDocuments] = useKV('generated-documents', [])
+# Linting (if configured)
+npm run lint
+
+# Format code (if configured)
+npm run format
 ```
 
-### Repository Storage
-```typescript
-// Save to local repository
-await spark.kv.set(`doc-${id}`, documentData)
+### Testing
 
-// Network repository integration
-const networkPath = 'smb://server/templates/'
-```
+The application includes manual testing workflows:
 
-## 📈 Performance
-
-### Optimization Features
-- **Lazy Loading**: Templates and documents loaded on demand
-- **Efficient Rendering**: Virtual scrolling for large template lists
-- **Caching**: AI responses cached for repeated generations
-- **Progressive Enhancement**: Core functionality works without JavaScript
-
-### Metrics
-- **Template Library**: 161+ professional templates
-- **Generation Speed**: ~2-5 seconds per document
-- **Format Support**: 3 output formats (Markdown, HTML, DOCX)
-- **Repository Types**: Local and network storage
+1. Template generation end-to-end flow
+2. Document preview rendering accuracy
+3. Repository integration functionality
+4. Responsive design validation
+5. Accessibility compliance verification
 
 ## 🤝 Contributing
 
-### Development Guidelines
-1. Follow the existing code style and conventions
-2. Use TypeScript for all new components
-3. Add tests for new functionality
-4. Update documentation for API changes
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for:
 
-### Template Contributions
-1. Follow AQUA V. nomenclature standards
-2. Include proper metadata and versioning
-3. Test with multiple output formats
-4. Validate compliance requirements
+- Development setup and guidelines
+- Code standards and best practices
+- Component development patterns
+- State management conventions
+- AI integration guidelines
+- UI/UX design principles
+
+### Quick Contributing Steps
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feat/amazing-feature`)
+3. Follow the code standards in [CONTRIBUTING.md](CONTRIBUTING.md)
+4. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+5. Push to the branch (`git push origin feat/amazing-feature`)
+6. Open a Pull Request
+
+## 📖 Documentation
+
+- [Contributing Guidelines](CONTRIBUTING.md) - Development standards and practices
+- [Component Documentation](docs/components.md) - UI component reference
+- [API Reference](docs/api.md) - GitHub Spark integration details
+- [Deployment Guide](docs/deployment.md) - Production deployment instructions
+
+## 🔒 Security
+
+- **Input Sanitization**: All user inputs are properly sanitized
+- **Content Security**: Generated HTML is safely rendered with content restrictions
+- **Data Privacy**: User data is stored locally using GitHub Spark KV
+- **API Security**: Secure integration with GitHub Spark LLM services
+
+Report security issues to: [security@example.com](mailto:security@example.com)
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
+## 🙏 Acknowledgments
 
-### Documentation
-- [Template Library Guide](docs/templates.md)
-- [API Reference](docs/api.md)
-- [Deployment Guide](docs/deployment.md)
+- **GitHub Spark** - AI integration and runtime environment
+- **shadcn/ui** - Beautiful and accessible UI components
+- **Tailwind CSS** - Utility-first CSS framework
+- **Framer Motion** - Smooth animations and transitions
+- **Phosphor Icons** - Clean and consistent iconography
 
-### Community
-- [Issue Tracker](https://github.com/your-org/processing-prompt-ui/issues)
-- [Discussions](https://github.com/your-org/processing-prompt-ui/discussions)
-- [Contributing Guide](CONTRIBUTING.md)
+## 📞 Support
+
+- **Issues**: [GitHub Issues](https://github.com/your-username/processing-prompt-ui/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/your-username/processing-prompt-ui/discussions)
+- **Documentation**: [Project Wiki](https://github.com/your-username/processing-prompt-ui/wiki)
 
 ---
 
-**Processing Prompt UI** - Transforming document generation through intelligent automation.
+<div align="center">
 
-Built with ❤️ for the AQUA V. aerospace program and modern enterprises worldwide.
+**[Live Demo](https://processing-prompt-ui.example.com)** • **[Documentation](docs/)** • **[Contributing](CONTRIBUTING.md)**
+
+Made with ❤️ for the aerospace documentation community
+
+</div>
