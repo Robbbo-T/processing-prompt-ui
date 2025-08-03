@@ -547,7 +547,7 @@ function App() {
                                         <div><strong>Name:</strong> {currentDocument.name}</div>
                                         <div><strong>Format:</strong> {currentDocument.format?.toUpperCase() || 'UNKNOWN'}</div>
                                         <div><strong>Repository:</strong> {currentDocument.metadata.repository}</div>
-                                        <div><strong>Size:</strong> {(currentDocument.rawContent.length / 1024).toFixed(1)} KB</div>
+                                        <div><strong>Size:</strong> {currentDocument.rawContent ? (currentDocument.rawContent.length / 1024).toFixed(1) : '0'} KB</div>
                                       </div>
                                     </div>
 
@@ -638,13 +638,13 @@ function App() {
                       <TabsContent value="raw">
                         <ScrollArea className="h-40 w-full border rounded-lg">
                           <pre className="p-4 text-sm font-mono whitespace-pre-wrap">
-                            {doc.rawContent.substring(0, 500)}...
+                            {doc.rawContent ? doc.rawContent.substring(0, 500) + '...' : 'No content available'}
                           </pre>
                         </ScrollArea>
                       </TabsContent>
                     </Tabs>
                     <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
-                      <span>Size: {(doc.rawContent.length / 1024).toFixed(1)} KB</span>
+                      <span>Size: {doc.rawContent ? (doc.rawContent.length / 1024).toFixed(1) : '0'} KB</span>
                       <span>Modified: {new Date(doc.metadata.lastModified).toLocaleDateString()}</span>
                     </div>
                   </CardContent>
