@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { motion } from 'framer-motion'
-import { Download, Robot, FolderOpen, GitBranch, Plus, Search, Filter } from '@phosphor-icons/react'
+import { Download, Robot, FolderOpen, GitBranch, Plus, Search, Filter, Code, Eye, FileText, Share, Copy, Check } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -14,6 +14,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Progress } from '@/components/ui/progress'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Separator } from '@/components/ui/separator'
 
 interface Template {
   id: string
@@ -31,13 +33,22 @@ interface GeneratedDocument {
   id: string
   templateId: string
   name: string
-  content: string
+  rawContent: string
+  renderedContent: string
+  format: 'markdown' | 'html' | 'docx'
+  status: 'draft' | 'reviewing' | 'approved' | 'published'
   metadata: {
     author: string
     created: string
     repository: string
     version: string
+    lastModified: string
   }
+}
+
+interface GenerationStep {
+  step: 'generating' | 'raw-review' | 'preview' | 'formatting' | 'complete'
+  progress: number
 }
 
 const sampleTemplates: Template[] = [
@@ -91,10 +102,14 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedPhase, setSelectedPhase] = useState('all')
   const [isGenerating, setIsGenerating] = useState(false)
-  const [generationProgress, setGenerationProgress] = useState(0)
+  const [currentStep, setCurrentStep] = useState<GenerationStep>({ step: 'generating', progress: 0 })
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null)
   const [customPrompt, setCustomPrompt] = useState('')
   const [repositoryPath, setRepositoryPath] = useState('')
+  const [outputFormat, setOutputFormat] = useState<'markdown' | 'html' | 'docx'>('markdown')
+  const [currentDocument, setCurrentDocument] = useState<GeneratedDocument | null>(null)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [copied, setCopied] = useState(false)
   
   const [generatedDocuments, setGeneratedDocuments] = useKV<GeneratedDocument[]>('generated-documents', [])
   const [savedTemplates, setSavedTemplates] = useKV<Template[]>('custom-templates', [])
@@ -122,57 +137,129 @@ function App() {
   const handleGenerate = async (template: Template) => {
     setSelectedTemplate(template)
     setIsGenerating(true)
-    setGenerationProgress(0)
+    setCurrentStep({ step: 'generating', progress: 0 })
+    setIsDialogOpen(true)
 
     try {
-      // Simulate AI generation process
-      for (let i = 0; i <= 100; i += 10) {
-        setGenerationProgress(i)
-        await new Promise(resolve => setTimeout(resolve, 200))
-      }
+      // Step 1: Generate raw content
+      setCurrentStep({ step: 'generating', progress: 25 })
+      await new Promise(resolve => setTimeout(resolve, 1000))
 
-      const prompt = spark.llmPrompt`Generate a ${template.name} document based on the following template requirements:
+      const prompt = spark.llmPrompt`Generate a ${template.name} document in ${outputFormat} format based on the following template requirements:
       
       Template: ${template.name}
       Description: ${template.description}
       Phase: ${template.phase}
       Document Code: ${template.docCode}
+      Output Format: ${outputFormat}
       
       Additional context: ${customPrompt || 'Standard implementation for AQUA V. aerospace program'}
       
-      Please create a comprehensive document following industry standards and best practices.`
+      Please create a comprehensive document following industry standards and best practices. 
+      ${outputFormat === 'markdown' ? 'Use proper markdown syntax with headers, lists, tables, and code blocks.' : ''}
+      ${outputFormat === 'html' ? 'Generate clean, semantic HTML5 with proper structure and styling classes.' : ''}
+      ${outputFormat === 'docx' ? 'Structure the content for Word document format with proper headings and formatting.' : ''}`
 
-      const generatedContent = await spark.llm(prompt)
-
+      const rawContent = await spark.llm(prompt)
+      
+      setCurrentStep({ step: 'raw-review', progress: 50 })
+      
+      // Create the document object
       const newDocument: GeneratedDocument = {
         id: `doc-${Date.now()}`,
         templateId: template.id,
         name: `${template.name} - Generated ${new Date().toLocaleDateString()}`,
-        content: generatedContent,
+        rawContent: rawContent,
+        renderedContent: rawContent, // Initially same as raw
+        format: outputFormat,
+        status: 'draft',
         metadata: {
           author: 'AI Generator',
           created: new Date().toISOString(),
           repository: repositoryPath || 'local://documents/',
-          version: '1.0.0'
+          version: '1.0.0',
+          lastModified: new Date().toISOString()
         }
       }
 
-      setGeneratedDocuments(current => [...current, newDocument])
-      
-      if (repositoryPath) {
-        toast.success(`Document saved to ${repositoryPath}`)
-      } else {
-        toast.success('Document generated and saved locally')
-      }
+      setCurrentDocument(newDocument)
+      setCurrentStep({ step: 'raw-review', progress: 100 })
 
     } catch (error) {
       toast.error('Generation failed. Please try again.')
       console.error('Generation error:', error)
-    } finally {
       setIsGenerating(false)
-      setGenerationProgress(0)
-      setSelectedTemplate(null)
+      setIsDialogOpen(false)
+    }
+  }
+
+  const handleApproveRaw = () => {
+    setCurrentStep({ step: 'preview', progress: 0 })
+  }
+
+  const handleApprovePreview = () => {
+    setCurrentStep({ step: 'formatting', progress: 50 })
+    setTimeout(() => {
+      setCurrentStep({ step: 'complete', progress: 100 })
+    }, 1000)
+  }
+
+  const handlePublish = () => {
+    if (currentDocument) {
+      const finalDocument = {
+        ...currentDocument,
+        status: 'published' as const,
+        metadata: {
+          ...currentDocument.metadata,
+          lastModified: new Date().toISOString()
+        }
+      }
+
+      setGeneratedDocuments(current => [...current, finalDocument])
+      
+      if (repositoryPath) {
+        toast.success(`Document published to ${repositoryPath}`)
+      } else {
+        toast.success('Document published locally')
+      }
+
+      // Reset state
+      setIsGenerating(false)
+      setIsDialogOpen(false)
+      setCurrentDocument(null)
       setCustomPrompt('')
+      setRepositoryPath('')
+    }
+  }
+
+  const handleCopyToClipboard = async () => {
+    if (currentDocument) {
+      try {
+        await navigator.clipboard.writeText(currentDocument.rawContent)
+        setCopied(true)
+        toast.success('Content copied to clipboard')
+        setTimeout(() => setCopied(false), 2000)
+      } catch (error) {
+        toast.error('Failed to copy to clipboard')
+      }
+    }
+  }
+
+  const renderPreview = (content: string, format: string) => {
+    if (format === 'html') {
+      return <div dangerouslySetInnerHTML={{ __html: content }} className="prose max-w-none" />
+    } else if (format === 'markdown') {
+      // Simple markdown to HTML conversion for preview
+      const htmlContent = content
+        .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+        .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+        .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/\n/g, '<br>')
+      return <div dangerouslySetInnerHTML={{ __html: htmlContent }} className="prose max-w-none" />
+    } else {
+      return <pre className="whitespace-pre-wrap text-sm">{content}</pre>
     }
   }
 
@@ -274,61 +361,207 @@ function App() {
                           <span>{template.version}</span>
                         </div>
                         
-                        <Dialog>
+                        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                           <DialogTrigger asChild>
                             <Button className="w-full" size="sm">
                               <Download size={16} className="mr-2" />
                               Generate Template
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="max-w-2xl">
+                          <DialogContent className="max-w-4xl max-h-[90vh]">
                             <DialogHeader>
                               <DialogTitle>Generate {template.name}</DialogTitle>
                             </DialogHeader>
-                            <div className="space-y-4">
-                              <div>
-                                <Label htmlFor="repository">Repository Path (optional)</Label>
-                                <Input
-                                  id="repository"
-                                  placeholder="e.g., /local/templates/ or smb://server/templates/"
-                                  value={repositoryPath}
-                                  onChange={(e) => setRepositoryPath(e.target.value)}
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="prompt">Custom Prompt (optional)</Label>
-                                <Textarea
-                                  id="prompt"
-                                  placeholder="Add specific requirements or context for this template..."
-                                  value={customPrompt}
-                                  onChange={(e) => setCustomPrompt(e.target.value)}
-                                  rows={4}
-                                />
-                              </div>
-                              {isGenerating && selectedTemplate?.id === template.id && (
-                                <div className="space-y-2">
-                                  <div className="flex items-center justify-between text-sm">
-                                    <span>Generating document...</span>
-                                    <span>{generationProgress}%</span>
+                            
+                            {!isGenerating ? (
+                              <div className="space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                    <Label htmlFor="format">Output Format</Label>
+                                    <Select value={outputFormat} onValueChange={(value: 'markdown' | 'html' | 'docx') => setOutputFormat(value)}>
+                                      <SelectTrigger>
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="markdown">Markdown</SelectItem>
+                                        <SelectItem value="html">HTML5</SelectItem>
+                                        <SelectItem value="docx">Word Document</SelectItem>
+                                      </SelectContent>
+                                    </Select>
                                   </div>
-                                  <Progress value={generationProgress} className="w-full" />
+                                  <div>
+                                    <Label htmlFor="repository">Repository Path (optional)</Label>
+                                    <Input
+                                      id="repository"
+                                      placeholder="e.g., /local/templates/ or smb://server/templates/"
+                                      value={repositoryPath}
+                                      onChange={(e) => setRepositoryPath(e.target.value)}
+                                    />
+                                  </div>
                                 </div>
-                              )}
-                              <Button 
-                                onClick={() => handleGenerate(template)}
-                                disabled={isGenerating}
-                                className="w-full"
-                              >
-                                {isGenerating && selectedTemplate?.id === template.id ? (
-                                  <>Generating...</>
-                                ) : (
-                                  <>
-                                    <Robot size={16} className="mr-2" />
-                                    Generate with AI
-                                  </>
+                                <div>
+                                  <Label htmlFor="prompt">Custom Prompt (optional)</Label>
+                                  <Textarea
+                                    id="prompt"
+                                    placeholder="Add specific requirements or context for this template..."
+                                    value={customPrompt}
+                                    onChange={(e) => setCustomPrompt(e.target.value)}
+                                    rows={4}
+                                  />
+                                </div>
+                                <Button 
+                                  onClick={() => handleGenerate(template)}
+                                  className="w-full"
+                                >
+                                  <Robot size={16} className="mr-2" />
+                                  Generate with AI
+                                </Button>
+                              </div>
+                            ) : (
+                              <div className="space-y-6">
+                                {/* Progress Indicator */}
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-4">
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep.step === 'generating' ? 'bg-blue-500 text-white' : currentStep.progress >= 50 ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
+                                      <Robot size={16} />
+                                    </div>
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep.step === 'raw-review' ? 'bg-blue-500 text-white' : currentStep.step === 'preview' || currentStep.step === 'formatting' || currentStep.step === 'complete' ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
+                                      <Code size={16} />
+                                    </div>
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep.step === 'preview' ? 'bg-blue-500 text-white' : currentStep.step === 'formatting' || currentStep.step === 'complete' ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
+                                      <Eye size={16} />
+                                    </div>
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep.step === 'formatting' ? 'bg-blue-500 text-white' : currentStep.step === 'complete' ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
+                                      <FileText size={16} />
+                                    </div>
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep.step === 'complete' ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
+                                      <Share size={16} />
+                                    </div>
+                                  </div>
+                                  <div className="text-sm text-muted-foreground">
+                                    {currentStep.step === 'generating' && 'Generating content...'}
+                                    {currentStep.step === 'raw-review' && 'Review raw code'}
+                                    {currentStep.step === 'preview' && 'Preview rendering'}
+                                    {currentStep.step === 'formatting' && 'Formatting...'}
+                                    {currentStep.step === 'complete' && 'Ready to publish'}
+                                  </div>
+                                </div>
+
+                                <Progress value={currentStep.progress} className="w-full" />
+
+                                {currentStep.step === 'raw-review' && currentDocument && (
+                                  <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                      <h3 className="text-lg font-semibold">Raw Code Review</h3>
+                                      <div className="flex gap-2">
+                                        <Button variant="outline" size="sm" onClick={handleCopyToClipboard}>
+                                          {copied ? <Check size={16} /> : <Copy size={16} />}
+                                          {copied ? 'Copied!' : 'Copy'}
+                                        </Button>
+                                        <Badge variant="secondary">{currentDocument.format.toUpperCase()}</Badge>
+                                      </div>
+                                    </div>
+                                    <ScrollArea className="h-96 w-full border rounded-lg">
+                                      <pre className="p-4 text-sm font-mono whitespace-pre-wrap">
+                                        {currentDocument.rawContent}
+                                      </pre>
+                                    </ScrollArea>
+                                    <div className="flex justify-end gap-2">
+                                      <Button variant="outline" onClick={() => { setIsGenerating(false); setIsDialogOpen(false) }}>
+                                        Cancel
+                                      </Button>
+                                      <Button onClick={handleApproveRaw}>
+                                        <Eye size={16} className="mr-2" />
+                                        Preview Rendering
+                                      </Button>
+                                    </div>
+                                  </div>
                                 )}
-                              </Button>
-                            </div>
+
+                                {currentStep.step === 'preview' && currentDocument && (
+                                  <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                      <h3 className="text-lg font-semibold">Preview Rendering</h3>
+                                      <Badge variant="secondary">{currentDocument.format.toUpperCase()}</Badge>
+                                    </div>
+                                    <Tabs defaultValue="preview" className="w-full">
+                                      <TabsList>
+                                        <TabsTrigger value="preview">Preview</TabsTrigger>
+                                        <TabsTrigger value="raw">Raw Code</TabsTrigger>
+                                      </TabsList>
+                                      <TabsContent value="preview">
+                                        <ScrollArea className="h-96 w-full border rounded-lg">
+                                          <div className="p-4">
+                                            {renderPreview(currentDocument.rawContent, currentDocument.format)}
+                                          </div>
+                                        </ScrollArea>
+                                      </TabsContent>
+                                      <TabsContent value="raw">
+                                        <ScrollArea className="h-96 w-full border rounded-lg">
+                                          <pre className="p-4 text-sm font-mono whitespace-pre-wrap">
+                                            {currentDocument.rawContent}
+                                          </pre>
+                                        </ScrollArea>
+                                      </TabsContent>
+                                    </Tabs>
+                                    <div className="flex justify-end gap-2">
+                                      <Button variant="outline" onClick={() => setCurrentStep({ step: 'raw-review', progress: 100 })}>
+                                        Back to Raw
+                                      </Button>
+                                      <Button onClick={handleApprovePreview}>
+                                        <FileText size={16} className="mr-2" />
+                                        Format & Prepare
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {(currentStep.step === 'formatting' || currentStep.step === 'complete') && currentDocument && (
+                                  <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                      <h3 className="text-lg font-semibold">
+                                        {currentStep.step === 'formatting' ? 'Formatting Document...' : 'Ready to Publish'}
+                                      </h3>
+                                      <Badge variant="secondary">{currentDocument.format.toUpperCase()}</Badge>
+                                    </div>
+                                    
+                                    {currentStep.step === 'complete' && (
+                                      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                                        <div className="flex items-center gap-2 text-green-800 mb-2">
+                                          <Check size={16} />
+                                          <span className="font-medium">Document Ready</span>
+                                        </div>
+                                        <p className="text-sm text-green-700">
+                                          Your {currentDocument.format.toUpperCase()} document has been generated and formatted successfully.
+                                        </p>
+                                      </div>
+                                    )}
+
+                                    <div className="space-y-2">
+                                      <Label>Document Details</Label>
+                                      <div className="bg-muted p-3 rounded-lg text-sm">
+                                        <div><strong>Name:</strong> {currentDocument.name}</div>
+                                        <div><strong>Format:</strong> {currentDocument.format.toUpperCase()}</div>
+                                        <div><strong>Repository:</strong> {currentDocument.metadata.repository}</div>
+                                        <div><strong>Size:</strong> {(currentDocument.rawContent.length / 1024).toFixed(1)} KB</div>
+                                      </div>
+                                    </div>
+
+                                    {currentStep.step === 'complete' && (
+                                      <div className="flex justify-end gap-2">
+                                        <Button variant="outline" onClick={() => { setIsGenerating(false); setIsDialogOpen(false) }}>
+                                          Cancel
+                                        </Button>
+                                        <Button onClick={handlePublish}>
+                                          <Share size={16} className="mr-2" />
+                                          Publish Document
+                                        </Button>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </DialogContent>
                         </Dialog>
                       </div>
@@ -351,14 +584,29 @@ function App() {
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div>
-                        <CardTitle className="text-lg">{doc.name}</CardTitle>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          {doc.name}
+                          <Badge variant="outline" className={
+                            doc.status === 'published' ? 'bg-green-100 text-green-800 border-green-200' :
+                            doc.status === 'approved' ? 'bg-blue-100 text-blue-800 border-blue-200' :
+                            doc.status === 'reviewing' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
+                            'bg-gray-100 text-gray-800 border-gray-200'
+                          }>
+                            {doc.status}
+                          </Badge>
+                        </CardTitle>
                         <CardDescription>
                           Created: {new Date(doc.metadata.created).toLocaleDateString()} • 
+                          Format: {doc.format.toUpperCase()} • 
                           Version: {doc.metadata.version} • 
                           Repository: {doc.metadata.repository}
                         </CardDescription>
                       </div>
                       <div className="flex gap-2">
+                        <Button variant="outline" size="sm">
+                          <Eye size={16} className="mr-2" />
+                          Preview
+                        </Button>
                         <Button variant="outline" size="sm">
                           <Download size={16} className="mr-2" />
                           Download
@@ -371,8 +619,29 @@ function App() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="bg-muted p-4 rounded-lg font-mono text-sm max-h-40 overflow-y-auto">
-                      {doc.content.substring(0, 300)}...
+                    <Tabs defaultValue="preview" className="w-full">
+                      <TabsList>
+                        <TabsTrigger value="preview">Preview</TabsTrigger>
+                        <TabsTrigger value="raw">Raw Code</TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="preview">
+                        <ScrollArea className="h-40 w-full border rounded-lg">
+                          <div className="p-4">
+                            {renderPreview(doc.rawContent, doc.format)}
+                          </div>
+                        </ScrollArea>
+                      </TabsContent>
+                      <TabsContent value="raw">
+                        <ScrollArea className="h-40 w-full border rounded-lg">
+                          <pre className="p-4 text-sm font-mono whitespace-pre-wrap">
+                            {doc.rawContent.substring(0, 500)}...
+                          </pre>
+                        </ScrollArea>
+                      </TabsContent>
+                    </Tabs>
+                    <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
+                      <span>Size: {(doc.rawContent.length / 1024).toFixed(1)} KB</span>
+                      <span>Modified: {new Date(doc.metadata.lastModified).toLocaleDateString()}</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -385,6 +654,10 @@ function App() {
                     <h3 className="text-lg font-medium mb-2">No documents generated yet</h3>
                     <p className="text-muted-foreground text-center">
                       Generate your first template document from the Template Library
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
                     </p>
                   </CardContent>
                 </Card>
