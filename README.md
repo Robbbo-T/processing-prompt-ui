@@ -1,254 +1,182 @@
-# Processing Prompt UI
+# Processing Prompt UI - AI-Powered Template Generator
 
-An AI-powered template generation interface that enables users to build, customize, and deploy document templates with real-time generation and multi-format support.
+A modern web application for generating, editing, and collaborating on document templates using AI. Built with React, TypeScript, and advanced real-time collaboration features.
 
-![Processing Prompt UI](https://img.shields.io/badge/React-18+-61DAFB?style=flat&logo=react&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-5+-3178C6?style=flat&logo=typescript&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3+-06B6D4?style=flat&logo=tailwindcss&logoColor=white)
-![GitHub Spark](https://img.shields.io/badge/GitHub_Spark-Enabled-181717?style=flat&logo=github&logoColor=white)
+## 🚀 Features
 
-## ✨ Features
+### Template Generation
+- **AI-Powered Generation**: Generate comprehensive documents using advanced LLM integration
+- **Multiple Output Formats**: Support for Markdown, HTML5, and Word document formats
+- **Template Library**: Extensive collection of industry-standard templates across all lifecycle phases
+- **Custom Prompts**: Add specific requirements and context for tailored document generation
 
-### 🤖 AI-Powered Document Generation
-- **Smart Template Processing**: Generate comprehensive documents from structured templates using advanced AI
-- **Multi-Format Support**: Output in Markdown, HTML5, or Word document formats
-- **Context-Aware Generation**: Customize outputs with project-specific context and requirements
+### Real-Time Collaboration
+- **Live Editing**: Multiple users can edit documents simultaneously with real-time synchronization
+- **Cursor Tracking**: See where other collaborators are working in real-time
+- **Comments System**: Add, resolve, and manage comments with threading support
+- **Activity Feed**: Track all changes and actions in collaborative sessions
+- **User Presence**: View who's online, idle, or offline in your team
 
-### 🔄 Interactive Generation Workflow
-- **Step-by-Step Process**: Guided workflow from generation → raw review → preview → formatting → publishing
-- **Real-Time Progress**: Visual progress tracking with detailed status updates
-- **Content Validation**: Review and approve generated content before final output
+### Document Management
+- **Version Control**: Track document versions and changes over time
+- **Repository Integration**: Save to local or network repositories
+- **Document Preview**: Live preview with support for multiple formats
+- **Status Tracking**: Manage document lifecycle from draft to published
 
-### 📋 Template Library Management
-- **Comprehensive Template Catalog**: Pre-built templates for aerospace documentation (AQUA V. standard)
-- **Phase-Based Organization**: Templates organized by project lifecycle phases (STR, DES, TST, etc.)
-- **Smart Search & Filtering**: Find templates by name, description, phase, or document code
-- **Criticality Indicators**: Visual indicators for Critical, Essential, Important, and Standard templates
-
-### 📁 Repository Integration
-- **Local & Network Storage**: Save generated documents to local or network repositories
-- **Version Control**: Track document versions and modifications
-- **Metadata Management**: Comprehensive document metadata including author, creation date, and repository path
-
-### 🎨 Modern User Experience
+### Advanced Features
+- **Multi-Phase Templates**: Support for 15 different lifecycle phases (STR, CON, DES, etc.)
+- **Criticality Classification**: Templates categorized by importance level
 - **Responsive Design**: Optimized for desktop, tablet, and mobile devices
-- **Dark/Light Theme Support**: Elegant color scheme with OKLCH color space
-- **Smooth Animations**: Subtle Framer Motion animations for enhanced interaction
-- **Accessibility First**: WCAG 2.1 AA compliant interface
+- **Modern UI**: Clean, professional interface with smooth animations
 
-## 🚀 Quick Start
+## 🛠 Tech Stack
 
-### Prerequisites
-
-- Node.js 18 or higher
-- GitHub Spark development environment
-- Modern web browser with ES2022 support
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/your-username/processing-prompt-ui.git
-cd processing-prompt-ui
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-```
-
-The application will be available at `http://localhost:5173`
-
-## 🏗️ Architecture
-
-### Tech Stack
-
-- **Frontend Framework**: React 18 with TypeScript
-- **Styling**: Tailwind CSS + shadcn/ui components
-- **State Management**: React hooks + GitHub Spark KV storage
-- **AI Integration**: GitHub Spark LLM API
-- **Animation**: Framer Motion
+- **Frontend**: React 18, TypeScript, Vite
+- **Styling**: Tailwind CSS, shadcn/ui components
+- **State Management**: React hooks, persistent KV storage
+- **Animations**: Framer Motion
 - **Icons**: Phosphor Icons
-- **Build Tool**: Vite
+- **Fonts**: Inter (UI), JetBrains Mono (code)
 
-### Project Structure
+## 📋 Requirements
 
-```
-src/
-├── components/
-│   └── ui/              # shadcn/ui components (pre-installed)
-├── lib/
-│   └── utils.ts         # Utility functions
-├── assets/              # Static assets
-├── App.tsx              # Main application component
-├── index.css            # Global styles and theme
-└── main.tsx             # Application entry point
-```
+- Node.js 18+ 
+- Modern web browser with JavaScript enabled
+- Internet connection for AI features
 
-## 🎯 Usage
+## 🚀 Getting Started
 
-### Generating Documents
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd processing-prompt-ui
+   ```
 
-1. **Browse Templates**: Explore the template library organized by project phases
-2. **Select Template**: Click "Generate Template" on any template card
-3. **Configure Generation**:
-   - Choose output format (Markdown, HTML5, or Word)
-   - Set repository path (optional)
-   - Add custom prompt context (optional)
-4. **Review Process**:
-   - **Raw Review**: Examine generated code before rendering
-   - **Preview**: See how the document will appear when rendered
-   - **Final Check**: Review formatting and metadata
-5. **Publish**: Save the document to your specified repository
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-### Template Phases
+3. **Start the development server**
+   ```bash
+   npm run dev
+   ```
 
-The system supports templates across all project lifecycle phases:
+4. **Open your browser**
+   Navigate to `http://localhost:5173`
 
-| Phase | Description | Template Count |
-|-------|-------------|----------------|
-| **STR** | Strategy & Planning | 8 templates |
-| **CON** | Conceptual & Feasibility | 10 templates |
-| **DES** | Design & Engineering | 24 templates |
-| **DEV** | Development & Prototyping | 16 templates |
-| **TST** | Testing & Validation | 14 templates |
-| **INT** | Integration & Verification | 12 templates |
-| **CRT** | Certification & Compliance | 18 templates |
-| **PRD** | Production & Manufacturing | 18 templates |
-| **OPS** | Operations & Service | 15 templates |
-| **MNT** | Maintenance & Support | 14 templates |
+## 📖 Usage Guide
+
+### Generating Templates
+
+1. **Browse Templates**: Explore the Template Library to find the document type you need
+2. **Configure Options**: Select output format (Markdown/HTML/DOCX) and repository path
+3. **Add Context**: Include custom prompts for specific requirements
+4. **Generate**: Click "Generate with AI" to create your document
+5. **Review Process**: 
+   - Review raw code generated by AI
+   - Preview the rendered output
+   - Format and finalize the document
+   - Publish or save to repository
+
+### Collaborative Editing
+
+1. **Start Session**: From Generated Documents, click "Collaborate" on any document
+2. **Invite Team**: Active team members will automatically join the session
+3. **Real-Time Editing**: 
+   - Edit content in the left panel
+   - See live preview in the right panel
+   - View other users' cursors and selections
+4. **Communication**:
+   - Add comments with the Comments panel
+   - Resolve discussions when complete
+   - Monitor activity feed for all changes
+5. **Save & Sync**: Changes are automatically synchronized across all participants
 
 ### Repository Management
 
-- **Local Repository**: Documents saved to local file system
-- **Network Repository**: Integration with SMB/network shares
-- **Version Control**: Automatic versioning and change tracking
-- **Metadata Tracking**: Author, creation date, modification history
+- **Local Storage**: Documents saved locally for quick access
+- **Network Repositories**: Configure SMB or other network storage
+- **Version Control**: Track changes and maintain document history
+- **Export Options**: Download in various formats for external use
+
+## 🎨 Customization
+
+### Theme Configuration
+
+The application uses CSS custom properties for theming. Modify `src/index.css` to customize:
+
+- **Colors**: Primary, secondary, accent, and semantic colors
+- **Typography**: Font families and sizes
+- **Spacing**: Border radius and layout spacing
+- **Dark Mode**: (Can be implemented by updating CSS variables)
+
+### Template Customization
+
+Add new templates by extending the `sampleTemplates` array in `App.tsx`:
+
+```typescript
+{
+  id: 'custom-1',
+  name: 'Your Template Name',
+  description: 'Template description',
+  phase: 'DES', // Lifecycle phase
+  type: 'Requirements',
+  docCode: 'YTN',
+  version: 'v1.0.0',
+  criticality: 'Critical',
+  lastModified: '2024-01-15'
+}
+```
 
 ## 🔧 Configuration
 
 ### Environment Variables
 
-The application runs within GitHub Spark and automatically configures:
+Create a `.env` file for configuration:
 
-- `spark.llm()` - AI generation service
-- `spark.kv()` - Persistent key-value storage
-- `spark.user()` - User context and permissions
-
-### Theme Customization
-
-Modify the CSS custom properties in `src/index.css`:
-
-```css
-:root {
-  --background: oklch(0.98 0.02 240);
-  --foreground: oklch(0.2 0.02 240);
-  --primary: oklch(0.45 0.15 240);
-  --secondary: oklch(0.95 0.02 240);
-  --accent: oklch(0.7 0.18 50);
-  /* ... more theme variables */
-}
+```env
+VITE_APP_TITLE="Processing Prompt UI"
+VITE_DEFAULT_REPOSITORY_PATH="/local/templates/"
+VITE_MAX_COLLABORATORS=10
 ```
 
-## 🧪 Development
+### API Integration
 
-### Local Development
+The application uses the Spark runtime API for:
+- **LLM Calls**: `spark.llm()` for AI generation
+- **Data Persistence**: `spark.kv` for storage
+- **User Context**: `spark.user()` for authentication
 
-```bash
-# Start development server with hot reload
-npm run dev
+## 📱 Browser Support
 
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
-```
-
-### Code Quality
-
-```bash
-# Type checking
-npm run type-check
-
-# Linting (if configured)
-npm run lint
-
-# Format code (if configured)
-npm run format
-```
-
-### Testing
-
-The application includes manual testing workflows:
-
-1. Template generation end-to-end flow
-2. Document preview rendering accuracy
-3. Repository integration functionality
-4. Responsive design validation
-5. Accessibility compliance verification
+- Chrome 90+
+- Firefox 90+
+- Safari 14+
+- Edge 90+
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for:
-
-- Development setup and guidelines
-- Code standards and best practices
-- Component development patterns
-- State management conventions
-- AI integration guidelines
-- UI/UX design principles
-
-### Quick Contributing Steps
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feat/amazing-feature`)
-3. Follow the code standards in [CONTRIBUTING.md](CONTRIBUTING.md)
-4. Commit your changes (`git commit -m 'feat: add amazing feature'`)
-5. Push to the branch (`git push origin feat/amazing-feature`)
-6. Open a Pull Request
-
-## 📖 Documentation
-
-- [Contributing Guidelines](CONTRIBUTING.md) - Development standards and practices
-- [Component Documentation](docs/components.md) - UI component reference
-- [API Reference](docs/api.md) - GitHub Spark integration details
-- [Deployment Guide](docs/deployment.md) - Production deployment instructions
-
-## 🔒 Security
-
-- **Input Sanitization**: All user inputs are properly sanitized
-- **Content Security**: Generated HTML is safely rendered with content restrictions
-- **Data Privacy**: User data is stored locally using GitHub Spark KV
-- **API Security**: Secure integration with GitHub Spark LLM services
-
-Report security issues to: [security@example.com](mailto:security@example.com)
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines and contribution process.
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## 🆘 Support
 
-- **GitHub Spark** - AI integration and runtime environment
-- **shadcn/ui** - Beautiful and accessible UI components
-- **Tailwind CSS** - Utility-first CSS framework
-- **Framer Motion** - Smooth animations and transitions
-- **Phosphor Icons** - Clean and consistent iconography
+For support and questions:
+- Check the in-app help documentation
+- Review the FAQ section
+- Contact the development team
+- Submit issues through the issue tracker
 
-## 📞 Support
+## 🔄 Version History
 
-- **Issues**: [GitHub Issues](https://github.com/your-username/processing-prompt-ui/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-username/processing-prompt-ui/discussions)
-- **Documentation**: [Project Wiki](https://github.com/your-username/processing-prompt-ui/wiki)
+- **v1.0.0**: Initial release with template generation
+- **v1.1.0**: Added real-time collaboration features
+- **v1.2.0**: Enhanced document management and repository integration
 
 ---
 
-<div align="center">
-
-**[Live Demo](https://processing-prompt-ui.example.com)** • **[Documentation](docs/)** • **[Contributing](CONTRIBUTING.md)**
-
-Made with ❤️ for the aerospace documentation community
-
-</div>
+Built with ❤️ for modern document collaboration and AI-powered content generation.

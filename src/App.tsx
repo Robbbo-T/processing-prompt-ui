@@ -1,7 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useKV } from '@github/spark/hooks'
-import { motion } from 'framer-motion'
-import { Download, Robot, FolderOpen, GitBranch, Plus, Search, Filter, Code, Eye, FileText, Share, Copy, Check } from '@phosphor-icons/react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { 
+  Download, Robot, FolderOpen, GitBranch, Plus, Search, Filter, Code, Eye, FileText, Share, Copy, Check,
+  Users, MessageCircle, Clock, Pencil, UserCircle, ChatCircle, PushPin, X, Play
+} from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -16,6 +19,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Progress } from '@/components/ui/progress'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
 interface Template {
   id: string
@@ -27,6 +32,59 @@ interface Template {
   version: string
   criticality: 'Critical' | 'Essential' | 'Important' | 'Standard'
   lastModified: string
+}
+
+interface Collaborator {
+  id: string
+  name: string
+  avatar: string
+  email: string
+  status: 'online' | 'offline' | 'idle'
+  cursor?: {
+    line: number
+    character: number
+  }
+  selection?: {
+    start: { line: number; character: number }
+    end: { line: number; character: number }
+  }
+  lastSeen: string
+}
+
+interface Comment {
+  id: string
+  author: Collaborator
+  content: string
+  timestamp: string
+  resolved: boolean
+  replies: Comment[]
+  position?: {
+    line: number
+    character: number
+  }
+  selection?: string
+}
+
+interface DocumentEdit {
+  id: string
+  author: Collaborator
+  timestamp: string
+  type: 'insert' | 'delete' | 'replace'
+  position: {
+    start: { line: number; character: number }
+    end: { line: number; character: number }
+  }
+  content: string
+  previousContent?: string
+}
+
+interface CollaborationSession {
+  id: string
+  documentId: string
+  participants: Collaborator[]
+  activeUsers: string[]
+  startTime: string
+  lastActivity: string
 }
 
 interface GeneratedDocument {
@@ -43,6 +101,13 @@ interface GeneratedDocument {
     repository: string
     version: string
     lastModified: string
+  }
+  collaboration?: {
+    session: CollaborationSession
+    comments: Comment[]
+    edits: DocumentEdit[]
+    isLocked: boolean
+    lockedBy?: string
   }
 }
 
@@ -98,6 +163,33 @@ const sampleTemplates: Template[] = [
   }
 ]
 
+const sampleCollaborators: Collaborator[] = [
+  {
+    id: '1',
+    name: 'Alice Johnson',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alice',
+    email: 'alice@aqua-v.com',
+    status: 'online',
+    lastSeen: new Date().toISOString()
+  },
+  {
+    id: '2',
+    name: 'Bob Wilson',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bob',
+    email: 'bob@aqua-v.com',
+    status: 'online',
+    lastSeen: new Date().toISOString()
+  },
+  {
+    id: '3',
+    name: 'Carol Davis',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Carol',
+    email: 'carol@aqua-v.com',
+    status: 'idle',
+    lastSeen: new Date(Date.now() - 5 * 60 * 1000).toISOString()
+  }
+]
+
 function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedPhase, setSelectedPhase] = useState('all')
@@ -111,10 +203,127 @@ function App() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [copied, setCopied] = useState(false)
   
+  // Collaboration states
+  const [collaborationSession, setCollaborationSession] = useState<CollaborationSession | null>(null)
+  const [activeCollaborators] = useState<Collaborator[]>(sampleCollaborators.filter(c => c.status === 'online'))
+  const [comments, setComments] = useKV<Comment[]>('document-comments', [])
+  const [newComment, setNewComment] = useState('')
+  const [showComments, setShowComments] = useState(false)
+  const [isEditingMode, setIsEditingMode] = useState(false)
+  const [editContent, setEditContent] = useState('')
+  const [collaborativeDocument, setCollaborativeDocument] = useState<GeneratedDocument | null>(null)
+  const editorRef = useRef<HTMLTextAreaElement>(null)
+  
   const [generatedDocuments, setGeneratedDocuments] = useKV<GeneratedDocument[]>('generated-documents', [])
   const [savedTemplates, setSavedTemplates] = useKV<Template[]>('custom-templates', [])
 
   const phases = ['STR', 'CON', 'DES', 'DEV', 'TST', 'INT', 'CRT', 'PRD', 'OPS', 'MNT', 'REP', 'UPG', 'EXT', 'RET', 'AUD']
+
+  // Simulate real-time collaboration
+  useEffect(() => {
+    if (collaborativeDocument && isEditingMode) {
+      const interval = setInterval(() => {
+        // Simulate cursor positions and selections from other users
+        setActiveCollaborators(prev => prev.map(collaborator => ({
+          ...collaborator,
+          cursor: {
+            line: Math.floor(Math.random() * 20) + 1,
+            character: Math.floor(Math.random() * 80)
+          }
+        })))
+      }, 3000)
+
+      return () => clearInterval(interval)
+    }
+  }, [collaborativeDocument, isEditingMode])
+
+  const startCollaborativeEditing = (document: GeneratedDocument) => {
+    setCollaborativeDocument(document)
+    setEditContent(document.rawContent)
+    setIsEditingMode(true)
+    
+    // Create collaboration session
+    const session: CollaborationSession = {
+      id: `session-${Date.now()}`,
+      documentId: document.id,
+      participants: [...activeCollaborators, {
+        id: 'current-user',
+        name: 'You',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=You',
+        email: 'you@aqua-v.com',
+        status: 'online',
+        lastSeen: new Date().toISOString()
+      }],
+      activeUsers: ['current-user', ...activeCollaborators.map(c => c.id)],
+      startTime: new Date().toISOString(),
+      lastActivity: new Date().toISOString()
+    }
+    
+    setCollaborationSession(session)
+    toast.success('Collaborative editing started')
+  }
+
+  const saveCollaborativeChanges = () => {
+    if (collaborativeDocument && editContent) {
+      const updatedDocument: GeneratedDocument = {
+        ...collaborativeDocument,
+        rawContent: editContent,
+        renderedContent: editContent,
+        metadata: {
+          ...collaborativeDocument.metadata,
+          lastModified: new Date().toISOString()
+        },
+        collaboration: {
+          session: collaborationSession!,
+          comments: comments,
+          edits: [],
+          isLocked: false
+        }
+      }
+
+      setGeneratedDocuments(current => 
+        current.map(doc => doc.id === collaborativeDocument.id ? updatedDocument : doc)
+      )
+      
+      setCollaborativeDocument(updatedDocument)
+      toast.success('Changes saved successfully')
+    }
+  }
+
+  const addComment = () => {
+    if (!newComment.trim() || !collaborativeDocument) return
+
+    const comment: Comment = {
+      id: `comment-${Date.now()}`,
+      author: {
+        id: 'current-user',
+        name: 'You',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=You',
+        email: 'you@aqua-v.com',
+        status: 'online',
+        lastSeen: new Date().toISOString()
+      },
+      content: newComment,
+      timestamp: new Date().toISOString(),
+      resolved: false,
+      replies: []
+    }
+
+    setComments(current => [...current, comment])
+    setNewComment('')
+    toast.success('Comment added')
+  }
+
+  const resolveComment = (commentId: string) => {
+    setComments(current => 
+      current.map(comment => 
+        comment.id === commentId 
+          ? { ...comment, resolved: true }
+          : comment
+      )
+    )
+    toast.success('Comment resolved')
+  }
 
   const filteredTemplates = [...sampleTemplates, ...savedTemplates].filter(template => {
     const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -325,9 +534,10 @@ function App() {
         </div>
 
         <Tabs defaultValue="templates" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="templates">Template Library</TabsTrigger>
             <TabsTrigger value="generated">Generated Documents</TabsTrigger>
+            <TabsTrigger value="collaboration">Collaboration</TabsTrigger>
             <TabsTrigger value="repositories">Repositories</TabsTrigger>
           </TabsList>
 
@@ -615,6 +825,14 @@ function App() {
                           <Download size={16} className="mr-2" />
                           Download
                         </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => startCollaborativeEditing(doc)}
+                        >
+                          <Users size={16} className="mr-2" />
+                          Collaborate
+                        </Button>
                         <Button variant="outline" size="sm">
                           <GitBranch size={16} className="mr-2" />
                           Version
@@ -663,6 +881,319 @@ function App() {
                 </Card>
               )}
             </div>
+          </TabsContent>
+
+          <TabsContent value="collaboration" className="space-y-6">
+            {!isEditingMode ? (
+              <div className="flex flex-col items-center justify-center py-12">
+                <Users size={48} className="text-muted-foreground mb-4" />
+                <h2 className="text-xl font-semibold mb-2">Real-time Collaboration</h2>
+                <p className="text-muted-foreground text-center mb-6">
+                  Select a document from the Generated Documents tab and click "Collaborate" to start real-time editing with your team.
+                </p>
+                
+                <div className="grid gap-4 w-full max-w-2xl">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Users size={20} />
+                        Active Team Members
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex flex-wrap gap-3">
+                        {sampleCollaborators.map((collaborator) => (
+                          <div key={collaborator.id} className="flex items-center gap-2">
+                            <div className="relative">
+                              <Avatar className="w-8 h-8">
+                                <AvatarImage src={collaborator.avatar} alt={collaborator.name} />
+                                <AvatarFallback>{collaborator.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                              </Avatar>
+                              <div className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${
+                                collaborator.status === 'online' ? 'bg-green-500' : 
+                                collaborator.status === 'idle' ? 'bg-yellow-500' : 'bg-gray-400'
+                              }`} />
+                            </div>
+                            <div className="text-sm">
+                              <div className="font-medium">{collaborator.name}</div>
+                              <div className="text-muted-foreground capitalize">{collaborator.status}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* Collaboration Header */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <h2 className="text-xl font-semibold">Collaborative Editing</h2>
+                    <Badge variant="secondary" className="bg-green-100 text-green-800">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse" />
+                      Live Session
+                    </Badge>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    {/* Active Users */}
+                    <div className="flex items-center gap-2">
+                      {collaborationSession?.participants.slice(0, 4).map((participant, index) => (
+                        <div key={participant.id} className="relative">
+                          <Avatar className="w-8 h-8" style={{ zIndex: 10 - index }}>
+                            <AvatarImage src={participant.avatar} alt={participant.name} />
+                            <AvatarFallback>{participant.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                          </Avatar>
+                          {participant.cursor && (
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border border-white"
+                            />
+                          )}
+                        </div>
+                      ))}
+                      {collaborationSession && collaborationSession.participants.length > 4 && (
+                        <div className="text-sm text-muted-foreground">
+                          +{collaborationSession.participants.length - 4} more
+                        </div>
+                      )}
+                    </div>
+                    
+                    <Separator orientation="vertical" className="h-6" />
+                    
+                    <div className="flex gap-2">
+                      <Popover open={showComments} onOpenChange={setShowComments}>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            <MessageCircle size={16} className="mr-2" />
+                            Comments ({comments.filter(c => !c.resolved).length})
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80" align="end">
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                              <h4 className="font-medium">Comments</h4>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setShowComments(false)}
+                              >
+                                <X size={16} />
+                              </Button>
+                            </div>
+                            
+                            <ScrollArea className="h-60">
+                              <div className="space-y-3">
+                                {comments.map((comment) => (
+                                  <motion.div
+                                    key={comment.id}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className={`p-3 rounded-lg border ${comment.resolved ? 'bg-gray-50' : 'bg-white'}`}
+                                  >
+                                    <div className="flex items-start gap-2">
+                                      <Avatar className="w-6 h-6">
+                                        <AvatarImage src={comment.author.avatar} alt={comment.author.name} />
+                                        <AvatarFallback className="text-xs">
+                                          {comment.author.name.split(' ').map(n => n[0]).join('')}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                      <div className="flex-1 text-sm">
+                                        <div className="font-medium">{comment.author.name}</div>
+                                        <div className="text-muted-foreground mb-1">
+                                          {new Date(comment.timestamp).toLocaleTimeString()}
+                                        </div>
+                                        <div className={comment.resolved ? 'line-through text-muted-foreground' : ''}>
+                                          {comment.content}
+                                        </div>
+                                        {!comment.resolved && (
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="mt-1 p-0 h-auto text-xs"
+                                            onClick={() => resolveComment(comment.id)}
+                                          >
+                                            <Check size={12} className="mr-1" />
+                                            Resolve
+                                          </Button>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </motion.div>
+                                ))}
+                              </div>
+                            </ScrollArea>
+                            
+                            <div className="space-y-2">
+                              <Textarea
+                                placeholder="Add a comment..."
+                                value={newComment}
+                                onChange={(e) => setNewComment(e.target.value)}
+                                rows={2}
+                              />
+                              <Button 
+                                size="sm" 
+                                onClick={addComment}
+                                disabled={!newComment.trim()}
+                              >
+                                <Plus size={16} className="mr-2" />
+                                Add Comment
+                              </Button>
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                      
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={saveCollaborativeChanges}
+                      >
+                        <Check size={16} className="mr-2" />
+                        Save Changes
+                      </Button>
+                      
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setIsEditingMode(false)
+                          setCollaborativeDocument(null)
+                          setCollaborationSession(null)
+                        }}
+                      >
+                        <X size={16} className="mr-2" />
+                        End Session
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Editor Interface */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-[600px]">
+                  {/* Editor */}
+                  <Card className="flex flex-col">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-lg">Editor</CardTitle>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-xs">
+                            {collaborativeDocument?.format?.toUpperCase()}
+                          </Badge>
+                          <div className="flex -space-x-2">
+                            {activeCollaborators.slice(0, 3).map((collaborator) => (
+                              <motion.div
+                                key={collaborator.id}
+                                animate={{
+                                  x: Math.random() * 4 - 2,
+                                  y: Math.random() * 4 - 2
+                                }}
+                                transition={{ duration: 0.3 }}
+                              >
+                                <Avatar className="w-6 h-6 border-2 border-white">
+                                  <AvatarImage src={collaborator.avatar} alt={collaborator.name} />
+                                  <AvatarFallback className="text-xs">
+                                    {collaborator.name.split(' ').map(n => n[0]).join('')}
+                                  </AvatarFallback>
+                                </Avatar>
+                              </motion.div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="flex-1 p-0">
+                      <div className="relative h-full">
+                        <Textarea
+                          ref={editorRef}
+                          value={editContent}
+                          onChange={(e) => setEditContent(e.target.value)}
+                          className="h-full resize-none border-0 focus:ring-0 font-mono text-sm"
+                          placeholder="Start editing your document..."
+                        />
+                        
+                        {/* Simulated cursor positions */}
+                        <AnimatePresence>
+                          {activeCollaborators.map((collaborator) => (
+                            collaborator.cursor && (
+                              <motion.div
+                                key={`cursor-${collaborator.id}`}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="absolute pointer-events-none"
+                                style={{
+                                  top: `${collaborator.cursor.line * 20 + 50}px`,
+                                  left: `${collaborator.cursor.character * 8 + 20}px`
+                                }}
+                              >
+                                <div className="w-0.5 h-5 bg-purple-500 animate-pulse" />
+                                <div className="bg-purple-500 text-white text-xs px-1 py-0.5 rounded mt-1 whitespace-nowrap">
+                                  {collaborator.name}
+                                </div>
+                              </motion.div>
+                            )
+                          ))}
+                        </AnimatePresence>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Live Preview */}
+                  <Card className="flex flex-col">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg">Live Preview</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex-1 p-0">
+                      <ScrollArea className="h-full">
+                        <div className="p-4">
+                          {renderPreview(editContent, collaborativeDocument?.format || 'markdown')}
+                        </div>
+                      </ScrollArea>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Activity Feed */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Clock size={20} />
+                      Recent Activity
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {[
+                        { user: 'Alice Johnson', action: 'edited lines 15-20', time: '2 minutes ago', type: 'edit' },
+                        { user: 'Bob Wilson', action: 'added a comment', time: '5 minutes ago', type: 'comment' },
+                        { user: 'You', action: 'joined the session', time: '8 minutes ago', type: 'join' }
+                      ].map((activity, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50"
+                        >
+                          <div className={`w-2 h-2 rounded-full ${
+                            activity.type === 'edit' ? 'bg-blue-500' :
+                            activity.type === 'comment' ? 'bg-yellow-500' : 'bg-green-500'
+                          }`} />
+                          <div className="flex-1 text-sm">
+                            <span className="font-medium">{activity.user}</span> {activity.action}
+                          </div>
+                          <div className="text-xs text-muted-foreground">{activity.time}</div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="repositories" className="space-y-6">
