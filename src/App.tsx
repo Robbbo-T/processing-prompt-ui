@@ -867,8 +867,6 @@ function App() {
   }
 
   const handleGenerate = async (template: Template) => {
-
-  const handleGenerate = async (template: Template) => {
     setIsGenerating(true)
     setIsDialogOpen(true)
 
@@ -972,7 +970,6 @@ function App() {
       setIsGenerating(false)
       setIsDialogOpen(false)
     }
-  }
   }
 
   const handleApproveRaw = () => {
@@ -1496,11 +1493,11 @@ function App() {
                                       <div>
                                         <span className="text-muted-foreground">Product:</span> {currentStep.nomenclatureData.product}-{currentStep.nomenclatureData.variant}
                                       </div>
-                                      </div>
-                                        <span className="text-muted-foreground">Phase:</span> {currentStep.nomenclatureData.phase}
+                                      <div>
                                         <span className="text-muted-foreground">Phase:</span> {currentStep.nomenclatureData.phase}
                                       </div>
                                       <div>
+                                        <span className="text-muted-foreground">Reality:</span> {currentStep.nomenclatureData.reality}
                                       </div>
                                     </div>
                                   </div>
