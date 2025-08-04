@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Download, Robot, FolderOpen, GitBranch, Plus, Search, Filter, Code, Eye, FileText, Share, Copy, Check,
   Users, MessageCircle, Clock, Pencil, UserCircle, ChatCircle, PushPin, X, Play, ArrowRight, 
-  CheckCircle, Warning, Info, Lightning, Gear, Export, Import, Tag, Hash
+  CheckCircle, Warning, Info, Lightning, Gear, Export, Import, Tag, Hash, File, Folder, ArrowLeft
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
@@ -375,6 +375,11 @@ function App() {
   const [repositories] = useKV<Repository[]>('configured-repositories', sampleRepositories)
   const [selectedRepository, setSelectedRepository] = useState<Repository | null>(null)
   const [repositoryFilter, setRepositoryFilter] = useState<string>('all')
+  const [browsingRepository, setBrowsingRepository] = useState<Repository | null>(null)
+  const [repositoryContents, setRepositoryContents] = useState<any[]>([])
+  const [loadingRepository, setLoadingRepository] = useState(false)
+  const [repositorySearchQuery, setRepositorySearchQuery] = useState('')
+  const [selectedFiles, setSelectedFiles] = useState<string[]>([])
 
   const [generatedDocuments, setGeneratedDocuments] = useKV<GeneratedDocument[]>('generated-documents', [])
   const [savedTemplates, setSavedTemplates] = useKV<Template[]>('custom-templates', [])
@@ -602,12 +607,255 @@ function App() {
     }
   }
 
+  const handleBrowseRepository = async (repo: Repository) => {
+    setBrowsingRepository(repo)
+    setLoadingRepository(true)
+    setRepositorySearchQuery('')
+    setSelectedFiles([])
+    
+    try {
+      // Simulate repository browsing
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Mock repository contents based on reality type
+      const mockContents = generateMockRepositoryContents(repo)
+      setRepositoryContents(mockContents)
+      
+      toast.success(`Connected to ${repo.name}`)
+    } catch (error) {
+      toast.error(`Failed to browse ${repo.name}`)
+      setBrowsingRepository(null)
+    } finally {
+      setLoadingRepository(false)
+    }
+  }
+
+  const handleFileSelection = (fileName: string) => {
+    setSelectedFiles(prev => 
+      prev.includes(fileName) 
+        ? prev.filter(f => f !== fileName)
+        : [...prev, fileName]
+    )
+  }
+
+  const handleDownloadSelected = () => {
+    if (selectedFiles.length === 0) {
+      toast.error('No files selected')
+      return
+    }
+    
+    toast.success(`Downloading ${selectedFiles.length} file(s) from ${browsingRepository?.name}`)
+    setSelectedFiles([])
+  }
+
+  const filteredRepositoryContents = repositoryContents.filter(item =>
+    item.name.toLowerCase().includes(repositorySearchQuery.toLowerCase()) ||
+    item.description.toLowerCase().includes(repositorySearchQuery.toLowerCase())
+  )
+
+  const generateMockRepositoryContents = (repo: Repository) => {
+    const baseContents = [
+      { 
+        name: 'templates/', 
+        type: 'folder', 
+        size: null, 
+        modified: new Date().toISOString(),
+        reality: repo.reality,
+        description: 'Template files organized by phase'
+      },
+      { 
+        name: 'generated/', 
+        type: 'folder', 
+        size: null, 
+        modified: new Date().toISOString(),
+        reality: repo.reality,
+        description: 'Generated documents'
+      },
+      { 
+        name: 'archive/', 
+        type: 'folder', 
+        size: null, 
+        modified: new Date().toISOString(),
+        reality: repo.reality,
+        description: 'Archived documents'
+      },
+      { 
+        name: 'README.md', 
+        type: 'file', 
+        size: '2.1 KB', 
+        modified: new Date().toISOString(),
+        reality: repo.reality,
+        description: 'Repository documentation and usage guidelines'
+      }
+    ]
+
+    // Add reality-specific content
+    switch (repo.reality) {
+      case 'PHYSL':
+        return [
+          ...baseContents,
+          { 
+            name: 'manufacturing-specs.pdf', 
+            type: 'file', 
+            size: '2.3 MB', 
+            modified: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+            reality: 'PHYSL',
+            description: 'Physical manufacturing specifications'
+          },
+          { 
+            name: 'assembly-manual.docx', 
+            type: 'file', 
+            size: '1.8 MB', 
+            modified: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+            reality: 'PHYSL',
+            description: 'Physical assembly procedures'
+          },
+          { 
+            name: 'quality-standards.xlsx', 
+            type: 'file', 
+            size: '845 KB', 
+            modified: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+            reality: 'PHYSL',
+            description: 'Quality control standards and metrics'
+          }
+        ]
+      case 'VRTUL':
+        return [
+          ...baseContents,
+          { 
+            name: 'vr-training-modules/', 
+            type: 'folder', 
+            size: null, 
+            modified: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+            reality: 'VRTUL',
+            description: 'Virtual reality training content'
+          },
+          { 
+            name: '3d-models.fbx', 
+            type: 'file', 
+            size: '15.2 MB', 
+            modified: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+            reality: 'VRTUL',
+            description: '3D model assets for VR'
+          },
+          { 
+            name: 'vr-scene-config.json', 
+            type: 'file', 
+            size: '127 KB', 
+            modified: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+            reality: 'VRTUL',
+            description: 'VR scene configuration and settings'
+          },
+          { 
+            name: 'immersive-docs.html', 
+            type: 'file', 
+            size: '3.4 MB', 
+            modified: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
+            reality: 'VRTUL',
+            description: 'Interactive VR documentation'
+          }
+        ]
+      case 'AUGMT':
+        return [
+          ...baseContents,
+          { 
+            name: 'ar-maintenance-guides/', 
+            type: 'folder', 
+            size: null, 
+            modified: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+            reality: 'AUGMT',
+            description: 'AR-enhanced maintenance documentation'
+          },
+          { 
+            name: 'spatial-anchors.json', 
+            type: 'file', 
+            size: '156 KB', 
+            modified: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+            reality: 'AUGMT',
+            description: 'AR spatial positioning data'
+          },
+          { 
+            name: 'ar-overlay-templates.xml', 
+            type: 'file', 
+            size: '892 KB', 
+            modified: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+            reality: 'AUGMT',
+            description: 'AR overlay templates and configurations'
+          },
+          { 
+            name: 'field-manual-ar.pdf', 
+            type: 'file', 
+            size: '12.7 MB', 
+            modified: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+            reality: 'AUGMT',
+            description: 'Field manual with AR enhancement markers'
+          }
+        ]  
+      case 'SIMUL':
+        return [
+          ...baseContents,
+          { 
+            name: 'simulation-scenarios/', 
+            type: 'folder', 
+            size: null, 
+            modified: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+            reality: 'SIMUL',
+            description: 'Simulation test scenarios'
+          },
+          { 
+            name: 'test-data.csv', 
+            type: 'file', 
+            size: '4.7 MB', 
+            modified: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+            reality: 'SIMUL',
+            description: 'Simulation test results'
+          },
+          { 
+            name: 'physics-models.json', 
+            type: 'file', 
+            size: '2.3 MB', 
+            modified: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+            reality: 'SIMUL',
+            description: 'Physics simulation models and parameters'
+          },
+          { 
+            name: 'validation-reports.html', 
+            type: 'file', 
+            size: '1.9 MB', 
+            modified: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+            reality: 'SIMUL',
+            description: 'Simulation validation and verification reports'
+          }
+        ]
+      case 'MIXRL':
+        return [
+          ...baseContents,
+          { 
+            name: 'mixed-reality-training/', 
+            type: 'folder', 
+            size: null, 
+            modified: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+            reality: 'MIXRL',
+            description: 'Mixed reality training materials'
+          },
+          { 
+            name: 'holographic-displays.xml', 
+            type: 'file', 
+            size: '678 KB', 
+            modified: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
+            reality: 'MIXRL',
+            description: 'Holographic display configurations'
+          }
+        ]
+      default:
+        return baseContents
+    }
+  }
+
   const filteredRepositories = repositories.filter(repo => {
     if (repositoryFilter === 'all') return true
     return repo.reality === repositoryFilter
   })
-
-  const getCriticalityColor = (criticality: Template['criticality']) => {
     switch (criticality) {
       case 'Critical': return 'bg-red-100 text-red-800 border-red-200'
       case 'Essential': return 'bg-orange-100 text-orange-800 border-orange-200'
@@ -1958,10 +2206,133 @@ function App() {
                             )}
                           </div>
                           <div className="flex items-center gap-2">
-                            <Button variant="outline" size="sm">
-                              <Eye size={16} className="mr-2" />
-                              Browse
-                            </Button>
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => handleBrowseRepository(repo)}
+                                  disabled={loadingRepository}
+                                >
+                                  <Eye size={16} className="mr-2" />
+                                  {loadingRepository && browsingRepository?.id === repo.id ? 'Loading...' : 'Browse'}
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
+                                <DialogHeader>
+                                  <DialogTitle className="flex items-center gap-2">
+                                    <FolderOpen size={20} />
+                                    Repository Browser: {browsingRepository?.name}
+                                    <Badge variant="outline" className={browsingRepository ? getRealityColor(browsingRepository.reality) : ''}>
+                                      {browsingRepository?.reality}
+                                    </Badge>
+                                  </DialogTitle>
+                                </DialogHeader>
+                                
+                                {browsingRepository && (
+                                  <div className="space-y-4">
+                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                      <span className="font-mono bg-muted px-2 py-1 rounded text-xs">
+                                        {browsingRepository.path}
+                                      </span>
+                                      <Badge variant="secondary">{browsingRepository.type}</Badge>
+                                      <Badge variant="outline" className={getStatusColor(browsingRepository.status)}>
+                                        {browsingRepository.status}
+                                      </Badge>
+                                    </div>
+
+                                    {/* Repository Search */}
+                                    <div className="relative">
+                                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={16} />
+                                      <Input
+                                        placeholder="Search files and folders..."
+                                        value={repositorySearchQuery}
+                                        onChange={(e) => setRepositorySearchQuery(e.target.value)}
+                                        className="pl-10"
+                                      />
+                                    </div>
+
+                                    <ScrollArea className="h-[400px] border rounded-lg">
+                                      <div className="p-4">
+                                        {loadingRepository ? (
+                                          <div className="flex items-center justify-center py-8">
+                                            <div className="text-muted-foreground">Loading repository contents...</div>
+                                          </div>
+                                        ) : (
+                                          <div className="space-y-2">
+                                            {filteredRepositoryContents.map((item, index) => (
+                                              <motion.div
+                                                key={index}
+                                                initial={{ opacity: 0, x: -10 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: index * 0.05 }}
+                                                className={`flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors ${
+                                                  selectedFiles.includes(item.name) ? 'bg-primary/10 border border-primary/20' : ''
+                                                }`}
+                                                onClick={() => item.type === 'file' && handleFileSelection(item.name)}
+                                              >
+                                                <div className="flex-shrink-0">
+                                                  {item.type === 'folder' ? (
+                                                    <Folder size={20} className="text-blue-500" />
+                                                  ) : (
+                                                    <File size={20} className="text-gray-500" />
+                                                  )}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                  <div className="font-medium text-sm truncate">{item.name}</div>
+                                                  <div className="text-xs text-muted-foreground truncate">
+                                                    {item.description}
+                                                  </div>
+                                                </div>
+                                                <div className="text-right text-xs text-muted-foreground">
+                                                  {item.size && <div>{item.size}</div>}
+                                                  <div>{new Date(item.modified).toLocaleDateString()}</div>
+                                                </div>
+                                                <Badge variant="outline" className={getRealityColor(item.reality)}>
+                                                  {item.reality}
+                                                </Badge>
+                                                {item.type === 'file' && selectedFiles.includes(item.name) && (
+                                                  <Check size={16} className="text-primary" />
+                                                )}
+                                              </motion.div>
+                                            ))}
+                                            
+                                            {filteredRepositoryContents.length === 0 && !loadingRepository && (
+                                              <div className="text-center py-8 text-muted-foreground">
+                                                {repositorySearchQuery ? 'No files match your search' : 'This repository is empty'}
+                                              </div>
+                                            )}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </ScrollArea>
+
+                                    <div className="flex items-center justify-between pt-4 border-t">
+                                      <div className="text-sm text-muted-foreground">
+                                        {filteredRepositoryContents.length} items 
+                                        {selectedFiles.length > 0 && ` • ${selectedFiles.length} selected`}
+                                        {' '} • Reality: {browsingRepository.reality}
+                                      </div>
+                                      <div className="flex gap-2">
+                                        <Button 
+                                          variant="outline" 
+                                          size="sm"
+                                          onClick={handleDownloadSelected}
+                                          disabled={selectedFiles.length === 0}
+                                        >
+                                          <Download size={16} className="mr-2" />
+                                          Download Selected
+                                        </Button>
+                                        <Button variant="outline" size="sm">
+                                          <Plus size={16} className="mr-2" />
+                                          Upload
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </DialogContent>
+                            </Dialog>
                             <Button variant="outline" size="sm">
                               <Gear size={16} className="mr-2" />
                               Configure
