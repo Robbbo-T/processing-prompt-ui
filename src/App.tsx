@@ -109,6 +109,21 @@ interface CollaborationSession {
   lastActivity: string
 }
 
+interface Repository {
+  id: string
+  name: string
+  path: string
+  type: 'local' | 'network' | 'cloud' | 'hybrid'
+  reality: 'PHYSL' | 'VRTUL' | 'AUGMT' | 'MIXRL' | 'SIMUL' | 'EXTND' | 'HYBRD' | 'OPERT'
+  status: 'active' | 'inactive' | 'readonly' | 'syncing' | 'error'
+  description: string
+  documentCount: number
+  lastSync: string
+  capabilities: string[]
+  securityLevel: 'public' | 'internal' | 'restricted' | 'classified'
+  supportedFormats: ('markdown' | 'html' | 'docx' | 'pdf' | 'xml')[]
+}
+
 interface GeneratedDocument {
   id: string
   templateId: string
@@ -121,8 +136,10 @@ interface GeneratedDocument {
     author: string
     created: string
     repository: string
+    repositoryId?: string
     version: string
     lastModified: string
+    reality?: string
   }
   collaboration?: {
     session: CollaborationSession
@@ -213,6 +230,93 @@ const sampleTemplates: Template[] = [
   }
 ]
 
+const sampleRepositories: Repository[] = [
+  {
+    id: 'repo-1',
+    name: 'AQUA V. Local Physical Documents',
+    path: '/local/templates/physical/',
+    type: 'local',
+    reality: 'PHYSL',
+    status: 'active',
+    description: 'Local repository for physical system documentation and manufacturing specs',
+    documentCount: 127,
+    lastSync: new Date().toISOString(),
+    capabilities: ['versioning', 'offline-access', 'bulk-export'],
+    securityLevel: 'internal',
+    supportedFormats: ['markdown', 'html', 'docx', 'pdf']
+  },
+  {
+    id: 'repo-2',
+    name: 'Virtual Reality Development Hub',
+    path: 'smb://aqua-v-net/vr-templates/',
+    type: 'network',
+    reality: 'VRTUL',
+    status: 'active',
+    description: 'Network repository for VR/AR documentation, 3D models, and immersive content',
+    documentCount: 89,
+    lastSync: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
+    capabilities: ['3d-preview', 'immersive-docs', 'collaborative-vr'],
+    securityLevel: 'restricted',
+    supportedFormats: ['html', 'xml', 'docx']
+  },
+  {
+    id: 'repo-3',
+    name: 'Augmented Reality Operations',
+    path: 'https://cloud.aqua-v.com/ar-repo/',
+    type: 'cloud',
+    reality: 'AUGMT',
+    status: 'syncing',
+    description: 'Cloud repository for AR maintenance manuals and field operation guides',
+    documentCount: 203,
+    lastSync: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    capabilities: ['ar-preview', 'field-sync', 'mobile-access', 'real-time-updates'],
+    securityLevel: 'classified',
+    supportedFormats: ['html', 'pdf', 'xml']
+  },
+  {
+    id: 'repo-4',
+    name: 'Mixed Reality Training Center',
+    path: '/hybrid/mixrl-training/',
+    type: 'hybrid',
+    reality: 'MIXRL',
+    status: 'active',
+    description: 'Hybrid repository combining physical and digital training materials',
+    documentCount: 156,
+    lastSync: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+    capabilities: ['mixed-reality', 'training-sims', 'assessment-tools'],
+    securityLevel: 'internal',
+    supportedFormats: ['markdown', 'html', 'docx']
+  },
+  {
+    id: 'repo-5',
+    name: 'Simulation Environment Library',
+    path: 'local://simulation-docs/',
+    type: 'local',
+    reality: 'SIMUL',
+    status: 'readonly',
+    description: 'Read-only archive of simulation documentation and test scenarios',
+    documentCount: 342,
+    lastSync: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+    capabilities: ['simulation-data', 'test-scenarios', 'archive-access'],
+    securityLevel: 'public',
+    supportedFormats: ['markdown', 'html', 'pdf']
+  },
+  {
+    id: 'repo-6',
+    name: 'Extended Reality Research',
+    path: 'smb://research-net/xr-docs/',
+    type: 'network',
+    reality: 'EXTND',
+    status: 'inactive',
+    description: 'Research repository for extended reality experiments and prototypes',
+    documentCount: 67,
+    lastSync: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+    capabilities: ['research-docs', 'prototype-specs', 'experimental-data'],
+    securityLevel: 'restricted',
+    supportedFormats: ['markdown', 'html', 'xml']
+  }
+]
+
 const sampleCollaborators: Collaborator[] = [
   {
     id: '1',
@@ -267,6 +371,11 @@ function App() {
   const [collaborativeDocument, setCollaborativeDocument] = useState<GeneratedDocument | null>(null)
   const editorRef = useRef<HTMLTextAreaElement>(null)
   
+  // Repository and reality management
+  const [repositories] = useKV<Repository[]>('configured-repositories', sampleRepositories)
+  const [selectedRepository, setSelectedRepository] = useState<Repository | null>(null)
+  const [repositoryFilter, setRepositoryFilter] = useState<string>('all')
+
   const [generatedDocuments, setGeneratedDocuments] = useKV<GeneratedDocument[]>('generated-documents', [])
   const [savedTemplates, setSavedTemplates] = useKV<Template[]>('custom-templates', [])
 
@@ -454,6 +563,50 @@ function App() {
     return matchesSearch && matchesPhase
   })
 
+  const getRealityColor = (reality: Repository['reality']) => {
+    switch (reality) {
+      case 'PHYSL': return 'bg-blue-100 text-blue-800 border-blue-200'
+      case 'VRTUL': return 'bg-purple-100 text-purple-800 border-purple-200'
+      case 'AUGMT': return 'bg-green-100 text-green-800 border-green-200'
+      case 'MIXRL': return 'bg-orange-100 text-orange-800 border-orange-200'
+      case 'SIMUL': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+      case 'EXTND': return 'bg-pink-100 text-pink-800 border-pink-200'
+      case 'HYBRD': return 'bg-indigo-100 text-indigo-800 border-indigo-200'
+      case 'OPERT': return 'bg-teal-100 text-teal-800 border-teal-200'
+      default: return 'bg-gray-100 text-gray-800 border-gray-200'
+    }
+  }
+
+  const getRealityDescription = (reality: Repository['reality']) => {
+    switch (reality) {
+      case 'PHYSL': return 'Physical Reality - Traditional documentation for physical systems'
+      case 'VRTUL': return 'Virtual Reality - Immersive 3D documentation and training'
+      case 'AUGMT': return 'Augmented Reality - Enhanced real-world documentation'
+      case 'MIXRL': return 'Mixed Reality - Hybrid physical-digital experiences'
+      case 'SIMUL': return 'Simulation - Virtual testing and scenario documentation'
+      case 'EXTND': return 'Extended Reality - Advanced immersive technologies'
+      case 'HYBRD': return 'Hybrid Reality - Multi-modal reality experiences'
+      case 'OPERT': return 'Operational Reality - Live system documentation'
+      default: return 'Unknown Reality Context'
+    }
+  }
+
+  const getStatusColor = (status: Repository['status']) => {
+    switch (status) {
+      case 'active': return 'bg-green-100 text-green-800 border-green-200'
+      case 'syncing': return 'bg-blue-100 text-blue-800 border-blue-200'
+      case 'readonly': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+      case 'inactive': return 'bg-gray-100 text-gray-800 border-gray-200'
+      case 'error': return 'bg-red-100 text-red-800 border-red-200'
+      default: return 'bg-gray-100 text-gray-800 border-gray-200'
+    }
+  }
+
+  const filteredRepositories = repositories.filter(repo => {
+    if (repositoryFilter === 'all') return true
+    return repo.reality === repositoryFilter
+  })
+
   const getCriticalityColor = (criticality: Template['criticality']) => {
     switch (criticality) {
       case 'Critical': return 'bg-red-100 text-red-800 border-red-200'
@@ -593,13 +746,18 @@ function App() {
         status: 'published' as const,
         metadata: {
           ...currentDocument.metadata,
-          lastModified: new Date().toISOString()
+          lastModified: new Date().toISOString(),
+          repository: selectedRepository?.path || repositoryPath || 'local://documents/',
+          repositoryId: selectedRepository?.id,
+          reality: selectedRepository?.reality
         }
       }
 
       setGeneratedDocuments(current => [...current, finalDocument])
       
-      if (repositoryPath) {
+      if (selectedRepository) {
+        toast.success(`Document published to ${selectedRepository.name} (${selectedRepository.reality})`)
+      } else if (repositoryPath) {
         toast.success(`Document published to ${repositoryPath}`)
       } else {
         toast.success('Document published locally')
@@ -886,12 +1044,46 @@ function App() {
                                         </Select>
                                       </div>
                                       <div>
-                                        <Label htmlFor="repository">Repository Path (optional)</Label>
+                                        <Label htmlFor="repository">Repository Selection</Label>
+                                        <Select value={selectedRepository?.id || ''} onValueChange={(value) => {
+                                          const repo = repositories.find(r => r.id === value)
+                                          setSelectedRepository(repo || null)
+                                          setRepositoryPath(repo?.path || '')
+                                        }}>
+                                          <SelectTrigger>
+                                            <SelectValue placeholder="Select repository..." />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            {repositories.filter(r => r.status !== 'error' && r.status !== 'inactive').map(repo => (
+                                              <SelectItem key={repo.id} value={repo.id}>
+                                                <div className="flex items-center gap-2">
+                                                  <Badge variant="outline" className={getRealityColor(repo.reality)}>
+                                                    {repo.reality}
+                                                  </Badge>
+                                                  <span>{repo.name}</span>
+                                                  <Badge variant="secondary" className="text-xs">
+                                                    {repo.type}
+                                                  </Badge>
+                                                </div>
+                                              </SelectItem>
+                                            ))}
+                                          </SelectContent>
+                                        </Select>
+                                        {selectedRepository && (
+                                          <div className="mt-2 p-2 bg-muted/30 rounded text-xs">
+                                            <div className="font-medium">{getRealityDescription(selectedRepository.reality)}</div>
+                                            <div className="text-muted-foreground mt-1">{selectedRepository.description}</div>
+                                          </div>
+                                        )}
+                                      </div>
+                                      <div>
+                                        <Label htmlFor="repository-path">Repository Path (optional override)</Label>
                                         <Input
-                                          id="repository"
-                                          placeholder="local://documents/ or smb://server/templates/"
+                                          id="repository-path"
+                                          placeholder="Override path if needed..."
                                           value={repositoryPath}
                                           onChange={(e) => setRepositoryPath(e.target.value)}
+                                          className="font-mono text-sm"
                                         />
                                       </div>
                                     </div>
@@ -1602,53 +1794,206 @@ function App() {
 
           <TabsContent value="repositories" className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">Repository Management</h2>
-              <Button>
-                <Plus size={16} className="mr-2" />
-                Add Repository
-              </Button>
+              <div>
+                <h2 className="text-xl font-semibold">Repository Management</h2>
+                <p className="text-sm text-muted-foreground">Reality-aware document repositories classified by rendering context</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <Select value={repositoryFilter} onValueChange={setRepositoryFilter}>
+                  <SelectTrigger className="w-48">
+                    <Filter size={16} className="mr-2" />
+                    <SelectValue placeholder="Filter by reality" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Realities</SelectItem>
+                    <SelectItem value="PHYSL">Physical</SelectItem>
+                    <SelectItem value="VRTUL">Virtual</SelectItem>
+                    <SelectItem value="AUGMT">Augmented</SelectItem>
+                    <SelectItem value="MIXRL">Mixed</SelectItem>
+                    <SelectItem value="SIMUL">Simulation</SelectItem>
+                    <SelectItem value="EXTND">Extended</SelectItem>
+                    <SelectItem value="HYBRD">Hybrid</SelectItem>
+                    <SelectItem value="OPERT">Operational</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button>
+                  <Plus size={16} className="mr-2" />
+                  Add Repository
+                </Button>
+              </div>
             </div>
             
             <div className="grid gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FolderOpen size={20} />
-                    Local Repository
-                  </CardTitle>
-                  <CardDescription>/local/templates/</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-muted-foreground">
-                      Status: Connected • Documents: {generatedDocuments.length}
-                    </div>
-                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                      Active
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
+              {filteredRepositories.map((repo) => (
+                <motion.div
+                  key={repo.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  whileHover={{ y: -2 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                >
+                  <Card className="hover:shadow-lg transition-all duration-300">
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="flex items-center gap-3">
+                            <div className="flex items-center gap-2">
+                              <FolderOpen size={20} />
+                              {repo.name}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className={getRealityColor(repo.reality)}>
+                                {repo.reality}
+                              </Badge>
+                              <Badge variant="outline" className={getStatusColor(repo.status)}>
+                                {repo.status}
+                              </Badge>
+                              <Badge variant="secondary" className="text-xs">
+                                {repo.type}
+                              </Badge>
+                            </div>
+                          </CardTitle>
+                          <CardDescription className="mt-2">
+                            <div className="mb-1">{repo.description}</div>
+                            <div className="text-xs font-mono bg-muted/50 px-2 py-1 rounded inline-block">
+                              {repo.path}
+                            </div>
+                          </CardDescription>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className={
+                            repo.securityLevel === 'classified' ? 'bg-red-50 text-red-700 border-red-200' :
+                            repo.securityLevel === 'restricted' ? 'bg-orange-50 text-orange-700 border-orange-200' :
+                            repo.securityLevel === 'internal' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                            'bg-green-50 text-green-700 border-green-200'
+                          }>
+                            {repo.securityLevel}
+                          </Badge>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {/* Reality Context Description */}
+                        <div className="bg-muted/30 p-3 rounded-lg">
+                          <div className="text-sm">
+                            <div className="font-medium text-primary mb-1">Reality Context</div>
+                            <div className="text-muted-foreground">{getRealityDescription(repo.reality)}</div>
+                          </div>
+                        </div>
+
+                        {/* Repository Stats */}
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                          <div>
+                            <div className="text-muted-foreground">Documents</div>
+                            <div className="font-medium">{repo.documentCount}</div>
+                          </div>
+                          <div>
+                            <div className="text-muted-foreground">Last Sync</div>
+                            <div className="font-medium">
+                              {new Date(repo.lastSync).toLocaleDateString()}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-muted-foreground">Formats</div>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {repo.supportedFormats.slice(0, 3).map(format => (
+                                <Badge key={format} variant="secondary" className="text-xs">
+                                  {format.toUpperCase()}
+                                </Badge>
+                              ))}
+                              {repo.supportedFormats.length > 3 && (
+                                <Badge variant="secondary" className="text-xs">
+                                  +{repo.supportedFormats.length - 3}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-muted-foreground">Capabilities</div>
+                            <div className="text-xs text-primary">
+                              {repo.capabilities.length} features
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Capabilities */}
+                        <div>
+                          <div className="text-sm font-medium text-muted-foreground mb-2">Repository Capabilities</div>
+                          <div className="flex flex-wrap gap-1">
+                            {repo.capabilities.map(capability => (
+                              <Badge key={capability} variant="outline" className="text-xs">
+                                {capability.replace(/-/g, ' ')}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center justify-between pt-2 border-t">
+                          <div className="text-xs text-muted-foreground">
+                            {repo.status === 'syncing' && (
+                              <div className="flex items-center gap-1">
+                                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                                Syncing...
+                              </div>
+                            )}
+                            {repo.status === 'active' && (
+                              <div className="flex items-center gap-1">
+                                <div className="w-2 h-2 bg-green-500 rounded-full" />
+                                Ready
+                              </div>
+                            )}
+                            {repo.status === 'readonly' && (
+                              <div className="flex items-center gap-1">
+                                <div className="w-2 h-2 bg-yellow-500 rounded-full" />
+                                Read Only
+                              </div>
+                            )}
+                            {repo.status === 'inactive' && (
+                              <div className="flex items-center gap-1">
+                                <div className="w-2 h-2 bg-gray-500 rounded-full" />
+                                Inactive
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button variant="outline" size="sm">
+                              <Eye size={16} className="mr-2" />
+                              Browse
+                            </Button>
+                            <Button variant="outline" size="sm">
+                              <Gear size={16} className="mr-2" />
+                              Configure
+                            </Button>
+                            {repo.status === 'active' && (
+                              <Button variant="outline" size="sm">
+                                <GitBranch size={16} className="mr-2" />
+                                Sync
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
               
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FolderOpen size={20} />
-                    Network Repository
-                  </CardTitle>
-                  <CardDescription>smb://aqua-v-net/templates/</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-muted-foreground">
-                      Status: Not configured
-                    </div>
-                    <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
-                      Inactive
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
+              {filteredRepositories.length === 0 && (
+                <Card>
+                  <CardContent className="flex flex-col items-center justify-center py-12">
+                    <FolderOpen size={48} className="text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-medium mb-2">No repositories found</h3>
+                    <p className="text-muted-foreground text-center">
+                      {repositoryFilter === 'all' 
+                        ? 'No repositories have been configured yet'
+                        : `No repositories found for ${repositoryFilter} reality context`
+                      }
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </TabsContent>
         </Tabs>
