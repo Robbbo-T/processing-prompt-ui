@@ -258,7 +258,7 @@ function App() {
   
   // Collaboration states
   const [collaborationSession, setCollaborationSession] = useState<CollaborationSession | null>(null)
-  const [activeCollaborators] = useState<Collaborator[]>(sampleCollaborators.filter(c => c.status === 'online'))
+  const [activeCollaborators, setActiveCollaborators] = useState<Collaborator[]>(sampleCollaborators.filter(c => c.status === 'online'))
   const [comments, setComments] = useKV<Comment[]>('document-comments', [])
   const [newComment, setNewComment] = useState('')
   const [showComments, setShowComments] = useState(false)
