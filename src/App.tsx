@@ -2017,9 +2017,8 @@ function App() {
                                       </div>
                                     </div>
                                   </div>
-                                )}
 
-                                {currentStep.step === 'raw-review' && currentDocument && (
+
                                   <div className="space-y-4">
                                     <div className="flex items-center justify-between">
                                       <h3 className="text-lg font-semibold">Raw Code Review</h3>
