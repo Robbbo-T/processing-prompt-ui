@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Download, Robot, FolderOpen, GitBranch, Plus, Search, Filter, Code, Eye, FileText, Share, Copy, Check,
   Users, MessageCircle, Clock, Pencil, UserCircle, ChatCircle, PushPin, X, Play, ArrowRight, 
-  CheckCircle, Warning, Info, Lightning, Gear, Export, Import, Tag, Hash, File, Folder, ArrowLeft
+  CheckCircle, Warning, Info, Lightning, Gear, Export, Import, Tag, Hash, File, Folder, ArrowLeft,
+  HelpCircle, BookOpen, Compass
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
@@ -39,6 +40,25 @@ interface NomenclatureData {
   version: string
   parsed?: boolean
   description?: string
+}
+
+interface QuizStep {
+  id: string
+  field: keyof NomenclatureData
+  question: string
+  type: 'select' | 'input' | 'multiselect'
+  options?: { value: string; label: string; description?: string }[]
+  validation?: RegExp
+  dependencies?: { field: keyof NomenclatureData; values: string[] }[]
+  helpText?: string
+  required: boolean
+}
+
+interface NomenclatureQuizState {
+  currentStep: number
+  answers: Partial<NomenclatureData>
+  completed: boolean
+  isActive: boolean
 }
 
 interface Template {
@@ -317,6 +337,131 @@ const sampleRepositories: Repository[] = [
   }
 ]
 
+const nomenclatureQuizSteps: QuizStep[] = [
+  {
+    id: 'line',
+    field: 'line',
+    question: 'What is the strategic product line for this artifact?',
+    type: 'select',
+    options: [
+      { value: 'AMPEL3', label: 'AMPEL360', description: 'Advanced hybrid aircraft systems' },
+      { value: 'GAIAIR', label: 'GAIA Air & Space', description: 'Space and atmospheric systems' },
+      { value: 'ROBBBO', label: 'ROBBBO-T Robotics', description: 'Robotic and autonomous systems' },
+      { value: 'QSERVS', label: 'Quantum Services', description: 'Quantum computing services' },
+      { value: 'QPRODS', label: 'Quantum Products', description: 'Quantum hardware products' },
+      { value: 'INFRAD', label: 'Digital Infrastructure', description: 'IT and digital systems' },
+      { value: 'AQUART', label: 'Cross-Program', description: 'Multi-program initiatives' }
+    ],
+    helpText: 'Select the primary strategic line that best describes your artifact or system.',
+    required: true
+  },
+  {
+    id: 'product',
+    field: 'product',
+    question: 'What is the specific product designation?',
+    type: 'select',
+    options: [
+      { value: 'BWB', label: 'BWB (Blended Wing Body)', description: 'Main aircraft configuration' },
+      { value: 'FAL', label: 'FAL (Final Assembly Line)', description: 'Manufacturing system' },
+      { value: 'QNS', label: 'QNS (Quantum Navigation)', description: 'Navigation quantum system' },
+      { value: 'QPU', label: 'QPU (Quantum Processing)', description: 'Quantum processing unit' },
+      { value: 'DIS', label: 'DIS (Digital Infrastructure)', description: 'Digital system' }
+    ],
+    dependencies: [
+      { field: 'line', values: ['AMPEL3'] }
+    ],
+    helpText: 'Choose the product that corresponds to your selected strategic line.',
+    required: true
+  },
+  {
+    id: 'variant',
+    field: 'variant',
+    question: 'What is the product variant code?',
+    type: 'input',
+    validation: /^[A-Z0-9]{2,6}$/,
+    helpText: 'Enter a 2-6 character alphanumeric code (e.g., Q100, V2, XR3).',
+    required: true
+  },
+  {
+    id: 'number',
+    field: 'number',
+    question: 'What is the sequential number for this item?',
+    type: 'input',
+    validation: /^[\d]{4,8}$/,
+    helpText: 'Enter a 4-8 digit sequential number (e.g., 0001, 12345678).',
+    required: true
+  },
+  {
+    id: 'phase',
+    field: 'phase',
+    question: 'In which lifecycle phase is this document?',
+    type: 'select',
+    options: [
+      { value: 'STR', label: 'Strategy & Planning', description: 'Strategic planning and business analysis' },
+      { value: 'CON', label: 'Conceptual & Feasibility', description: 'Concept development and feasibility studies' },
+      { value: 'DES', label: 'Design & Engineering', description: 'Detailed design and engineering' },
+      { value: 'DEV', label: 'Development & Prototyping', description: 'Development and prototype creation' },
+      { value: 'TST', label: 'Testing & Validation', description: 'Testing and validation activities' },
+      { value: 'INT', label: 'Integration & Verification', description: 'System integration and verification' },
+      { value: 'CRT', label: 'Certification & Compliance', description: 'Certification and regulatory compliance' },
+      { value: 'PRD', label: 'Production & Manufacturing', description: 'Production and manufacturing' },
+      { value: 'OPS', label: 'Operations & Service', description: 'Operational use and service' },
+      { value: 'MNT', label: 'Maintenance & Support', description: 'Maintenance and support activities' }
+    ],
+    helpText: 'Select the current lifecycle phase of your artifact.',
+    required: true
+  },
+  {
+    id: 'criticality',
+    field: 'criticality',
+    question: 'What is the criticality level?',
+    type: 'select',
+    options: [
+      { value: 'SE', label: 'Safety Essential', description: 'Critical for flight safety' },
+      { value: 'MI', label: 'Mission Critical', description: 'Critical for mission success' },
+      { value: 'GE', label: 'General', description: 'Standard operational criticality' },
+      { value: 'RE', label: 'Regulatory', description: 'Required by regulation' }
+    ],
+    helpText: 'Classify the safety and mission criticality of this artifact.',
+    required: true
+  },
+  {
+    id: 'document',
+    field: 'document',
+    question: 'What type of document is this?',
+    type: 'select',
+    options: [
+      { value: 'SRS', label: 'Software Requirements Specification', description: 'Software requirements document' },
+      { value: 'HDD', label: 'Hardware Design Document', description: 'Hardware design specification' },
+      { value: 'SDS', label: 'System Design Specification', description: 'System-level design document' },
+      { value: 'TST', label: 'Test Specification', description: 'Test procedures and requirements' },
+      { value: 'AMM', label: 'Aircraft Maintenance Manual', description: 'Maintenance procedures' },
+      { value: 'POE', label: 'Plan of Execution', description: 'Execution and implementation plan' },
+      { value: 'WHP', label: 'White Paper', description: 'Technical white paper or analysis' }
+    ],
+    helpText: 'Select the primary document type being created.',
+    required: true
+  },
+  {
+    id: 'reality',
+    field: 'reality',
+    question: 'What is the rendering reality context?',
+    type: 'select',
+    options: [
+      { value: 'PHYSL', label: 'Physical Reality', description: 'Traditional documentation for physical systems' },
+      { value: 'VRTUL', label: 'Virtual Reality', description: 'Immersive 3D documentation and training' },
+      { value: 'AUGMT', label: 'Augmented Reality', description: 'Enhanced real-world documentation' },
+      { value: 'MIXRL', label: 'Mixed Reality', description: 'Hybrid physical-digital experiences' },
+      { value: 'SIMUL', label: 'Simulation', description: 'Virtual testing and scenario documentation' },
+      { value: 'EXTND', label: 'Extended Reality', description: 'Advanced immersive technologies' },
+      { value: 'HYBRD', label: 'Hybrid Reality', description: 'Multi-modal reality experiences' },
+      { value: 'OPERT', label: 'Operational Reality', description: 'Live system documentation' }
+    ],
+    helpText: 'Choose the primary reality context for document rendering and interaction.',
+    required: true
+  }
+]
+
 const sampleCollaborators: Collaborator[] = [
   {
     id: '1',
@@ -360,6 +505,15 @@ function App() {
   const [parsedNomenclature, setParsedNomenclature] = useState<NomenclatureData | null>(null)
   const [showAdvanced, setShowAdvanced] = useState(false)
   
+  // Quiz states
+  const [quizState, setQuizState] = useState<NomenclatureQuizState>({
+    currentStep: 0,
+    answers: {},
+    completed: false,
+    isActive: false
+  })
+  const [showQuizDialog, setShowQuizDialog] = useState(false)
+  
   // Collaboration states
   const [collaborationSession, setCollaborationSession] = useState<CollaborationSession | null>(null)
   const [activeCollaborators, setActiveCollaborators] = useState<Collaborator[]>(sampleCollaborators.filter(c => c.status === 'online'))
@@ -385,6 +539,95 @@ function App() {
   const [savedTemplates, setSavedTemplates] = useKV<Template[]>('custom-templates', [])
 
   const phases = ['STR', 'CON', 'DES', 'DEV', 'TST', 'INT', 'CRT', 'PRD', 'OPS', 'MNT', 'REP', 'UPG', 'EXT', 'RET', 'AUD']
+
+  // Quiz functions
+  const startQuiz = () => {
+    setQuizState({
+      currentStep: 0,
+      answers: {},
+      completed: false,
+      isActive: true
+    })
+    setShowQuizDialog(true)
+  }
+
+  const nextQuizStep = () => {
+    if (quizState.currentStep < nomenclatureQuizSteps.length - 1) {
+      setQuizState(prev => ({
+        ...prev,
+        currentStep: prev.currentStep + 1
+      }))
+    } else {
+      completeQuiz()
+    }
+  }
+
+  const prevQuizStep = () => {
+    if (quizState.currentStep > 0) {
+      setQuizState(prev => ({
+        ...prev,
+        currentStep: prev.currentStep - 1
+      }))
+    }
+  }
+
+  const updateQuizAnswer = (field: keyof NomenclatureData, value: string) => {
+    setQuizState(prev => ({
+      ...prev,
+      answers: {
+        ...prev.answers,
+        [field]: value
+      }
+    }))
+  }
+
+  const completeQuiz = () => {
+    const answers = quizState.answers
+    const nomenclatureCode = `${answers.line || ''}-${answers.product || ''}-${answers.variant || ''}-${answers.number || ''}-${answers.phase || ''}-${answers.criticality || ''}-${answers.document || ''}-TSG-TR-VF-E001-0001-${answers.reality || ''}-07150000000-MUL-v1.0.0`
+    
+    setNomenclatureInput(nomenclatureCode)
+    setQuizState(prev => ({
+      ...prev,
+      completed: true,
+      isActive: false
+    }))
+    setShowQuizDialog(false)
+    
+    toast.success('Nomenclature code generated successfully!')
+  }
+
+  const getCurrentQuizStep = () => {
+    return nomenclatureQuizSteps[quizState.currentStep]
+  }
+
+  const isQuizStepValid = () => {
+    const currentStep = getCurrentQuizStep()
+    if (!currentStep) return false
+    
+    const answer = quizState.answers[currentStep.field]
+    if (currentStep.required && !answer) return false
+    
+    if (currentStep.validation && answer) {
+      return currentStep.validation.test(answer)
+    }
+    
+    return true
+  }
+
+  const getFilteredQuizOptions = () => {
+    const currentStep = getCurrentQuizStep()
+    if (!currentStep || !currentStep.dependencies) return currentStep?.options || []
+    
+    // Filter options based on dependencies
+    for (const dependency of currentStep.dependencies) {
+      const dependencyValue = quizState.answers[dependency.field]
+      if (dependencyValue && dependency.values.includes(dependencyValue)) {
+        return currentStep.options || []
+      }
+    }
+    
+    return []
+  }
 
   // Parse AQUA V. nomenclature
   const parseNomenclature = (nomenclature: string): NomenclatureData | null => {
@@ -1074,6 +1317,10 @@ function App() {
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                 <span>AI Online</span>
               </div>
+              <Button variant="outline" size="sm" onClick={startQuiz}>
+                <Compass size={16} className="mr-2" />
+                Guided Quiz
+              </Button>
               <Button variant="outline" size="sm">
                 <GitBranch size={16} className="mr-2" />
                 Version Control
@@ -1121,12 +1368,260 @@ function App() {
         </div>
 
         <Tabs defaultValue="templates" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="templates">Template Library</TabsTrigger>
+            <TabsTrigger value="quiz">Driven Prompting</TabsTrigger>
             <TabsTrigger value="generated">Generated Documents</TabsTrigger>
             <TabsTrigger value="collaboration">Collaboration</TabsTrigger>
-            <TabsTrigger value="repositories">Repositories</TabsTrigger>
+            <TabsTrigger value="repositories">Reality Portals</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="quiz" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold">Driven Prompting Quiz</h2>
+                <p className="text-sm text-muted-foreground">Interactive guided questionnaire for AQUA V. nomenclature generation</p>
+              </div>
+              <Button onClick={startQuiz} className="flex items-center gap-2">
+                <Compass size={16} />
+                Start Guided Quiz
+              </Button>
+            </div>
+
+            {/* Quiz Progress Indicator */}
+            {quizState.isActive && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BookOpen size={20} />
+                    Quiz Progress
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <Progress value={(quizState.currentStep / nomenclatureQuizSteps.length) * 100} className="w-full" />
+                    <div className="text-sm text-muted-foreground">
+                      Step {quizState.currentStep + 1} of {nomenclatureQuizSteps.length}: {getCurrentQuizStep()?.question}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Quiz Results */}
+            {quizState.completed && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CheckCircle size={20} className="text-green-500" />
+                    Nomenclature Generated
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="bg-muted/50 p-3 rounded-lg">
+                      <Label className="text-sm font-medium">Generated Code:</Label>
+                      <code className="block mt-1 font-mono text-sm bg-background p-2 rounded border">
+                        {nomenclatureInput}
+                      </code>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      {Object.entries(quizState.answers).map(([key, value]) => value && (
+                        <div key={key}>
+                          <span className="text-muted-foreground capitalize">{key}:</span>
+                          <span className="ml-2 font-medium">{value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Quiz Overview */}
+            <div className="grid gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>How Driven Prompting Works</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <span className="text-sm font-semibold text-primary">1</span>
+                        </div>
+                        <div>
+                          <h4 className="font-medium">Interactive Guidance</h4>
+                          <p className="text-sm text-muted-foreground">Step-by-step questions guide you through nomenclature creation</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <span className="text-sm font-semibold text-primary">2</span>
+                        </div>
+                        <div>
+                          <h4 className="font-medium">Real-time Validation</h4>
+                          <p className="text-sm text-muted-foreground">Each input is validated against AQUA V. standards</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <span className="text-sm font-semibold text-primary">3</span>
+                        </div>
+                        <div>
+                          <h4 className="font-medium">Automatic Generation</h4>
+                          <p className="text-sm text-muted-foreground">Complete nomenclature code generated automatically</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Quiz Benefits</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <h4 className="font-medium text-primary">For New Users</h4>
+                      <ul className="text-sm text-muted-foreground space-y-1">
+                        <li>• Learn AQUA V. nomenclature structure</li>
+                        <li>• Understand field relationships</li>
+                        <li>• Avoid common mistakes</li>
+                        <li>• Get contextual help and examples</li>
+                      </ul>
+                    </div>
+                    <div className="space-y-2">
+                      <h4 className="font-medium text-primary">For Experienced Users</h4>
+                      <ul className="text-sm text-muted-foreground space-y-1">
+                        <li>• Ensure compliance with latest standards</li>
+                        <li>• Reduce manual typing errors</li>
+                        <li>• Speed up nomenclature creation</li>
+                        <li>• Maintain consistency across projects</li>
+                      </ul>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Quiz Dialog */}
+            <Dialog open={showQuizDialog} onOpenChange={setShowQuizDialog}>
+              <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <Compass size={20} />
+                    AQUA V. Nomenclature Quiz
+                    <Badge variant="outline" className="ml-2">
+                      Step {quizState.currentStep + 1} of {nomenclatureQuizSteps.length}
+                    </Badge>
+                  </DialogTitle>
+                </DialogHeader>
+                
+                {quizState.isActive && getCurrentQuizStep() && (
+                  <div className="space-y-6">
+                    <Progress value={(quizState.currentStep / nomenclatureQuizSteps.length) * 100} className="w-full" />
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="text-lg font-medium mb-2">{getCurrentQuizStep().question}</h3>
+                        {getCurrentQuizStep().helpText && (
+                          <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg">
+                            <HelpCircle size={16} className="text-primary mt-0.5 flex-shrink-0" />
+                            <p className="text-sm text-muted-foreground">{getCurrentQuizStep().helpText}</p>
+                          </div>
+                        )}
+                      </div>
+
+                      {getCurrentQuizStep().type === 'select' && (
+                        <div className="space-y-2">
+                          {getFilteredQuizOptions().map((option) => (
+                            <Card 
+                              key={option.value}
+                              className={`cursor-pointer transition-all hover:shadow-md ${
+                                quizState.answers[getCurrentQuizStep().field] === option.value 
+                                  ? 'border-primary bg-primary/5' 
+                                  : ''
+                              }`}
+                              onClick={() => updateQuizAnswer(getCurrentQuizStep().field, option.value)}
+                            >
+                              <CardContent className="p-4">
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <div className="font-medium">{option.label}</div>
+                                    {option.description && (
+                                      <div className="text-sm text-muted-foreground mt-1">{option.description}</div>
+                                    )}
+                                  </div>
+                                  <div className="ml-4">
+                                    <Badge variant="outline" className="font-mono text-xs">
+                                      {option.value}
+                                    </Badge>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+
+                      {getCurrentQuizStep().type === 'input' && (
+                        <div className="space-y-2">
+                          <Input
+                            value={quizState.answers[getCurrentQuizStep().field] || ''}
+                            onChange={(e) => updateQuizAnswer(getCurrentQuizStep().field, e.target.value)}
+                            placeholder={`Enter ${getCurrentQuizStep().field}...`}
+                            className="font-mono"
+                          />
+                          {getCurrentQuizStep().validation && quizState.answers[getCurrentQuizStep().field] && !getCurrentQuizStep().validation!.test(quizState.answers[getCurrentQuizStep().field]!) && (
+                            <div className="flex items-center gap-2 text-sm text-destructive">
+                              <Warning size={14} />
+                              Invalid format. Please check the help text above.
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between pt-4 border-t">
+                      <Button 
+                        variant="outline" 
+                        onClick={prevQuizStep}
+                        disabled={quizState.currentStep === 0}
+                      >
+                        <ArrowLeft size={16} className="mr-2" />
+                        Previous
+                      </Button>
+                      
+                      <div className="text-sm text-muted-foreground">
+                        {quizState.currentStep + 1} of {nomenclatureQuizSteps.length}
+                      </div>
+                      
+                      <Button 
+                        onClick={nextQuizStep}
+                        disabled={!isQuizStepValid()}
+                      >
+                        {quizState.currentStep === nomenclatureQuizSteps.length - 1 ? (
+                          <>
+                            <CheckCircle size={16} className="mr-2" />
+                            Complete
+                          </>
+                        ) : (
+                          <>
+                            Next
+                            <ArrowRight size={16} className="ml-2" />
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </DialogContent>
+            </Dialog>
+          </TabsContent>
 
           <TabsContent value="templates" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1231,10 +1726,23 @@ function App() {
                               <div className="space-y-6">
                                 {/* Nomenclature Input Section */}
                                 <div className="border rounded-lg p-4 bg-muted/50">
-                                  <div className="flex items-center gap-2 mb-3">
-                                    <Hash size={18} className="text-primary" />
-                                    <Label className="text-base font-medium">AQUA V. Nomenclature (Optional)</Label>
-                                    <Badge variant="secondary" className="text-xs">Enhanced Context</Badge>
+                                  <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-2">
+                                      <Hash size={18} className="text-primary" />
+                                      <Label className="text-base font-medium">AQUA V. Nomenclature</Label>
+                                      <Badge variant="secondary" className="text-xs">Enhanced Context</Badge>
+                                    </div>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => {
+                                        setIsDialogOpen(false)
+                                        startQuiz()
+                                      }}
+                                    >
+                                      <Compass size={14} className="mr-1" />
+                                      Use Quiz
+                                    </Button>
                                   </div>
                                   <div className="space-y-3">
                                     <Input
@@ -1248,6 +1756,14 @@ function App() {
                                         <div className="flex items-center gap-1">
                                           <Info size={14} />
                                           <span>Will be parsed to enhance document generation with specific context</span>
+                                        </div>
+                                      </div>
+                                    )}
+                                    {!nomenclatureInput && (
+                                      <div className="text-sm text-muted-foreground">
+                                        <div className="flex items-center gap-1">
+                                          <HelpCircle size={14} />
+                                          <span>Optional: Use the guided quiz to build a valid nomenclature code, or enter manually</span>
                                         </div>
                                       </div>
                                     )}
@@ -2038,7 +2554,7 @@ function App() {
           <TabsContent value="repositories" className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold">Repository Management</h2>
+                <h2 className="text-xl font-semibold">Reality Portal Management</h2>
                 <p className="text-sm text-muted-foreground">Reality-aware document repositories classified by rendering context</p>
               </div>
               <div className="flex items-center gap-3">
@@ -2061,10 +2577,65 @@ function App() {
                 </Select>
                 <Button>
                   <Plus size={16} className="mr-2" />
-                  Add Repository
+                  Add Portal
                 </Button>
               </div>
             </div>
+
+            {/* Reality Portals Dashboard */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              {[
+                { reality: 'PHYSL', count: repositories.filter(r => r.reality === 'PHYSL').length, color: 'bg-blue-100 text-blue-800 border-blue-200' },
+                { reality: 'VRTUL', count: repositories.filter(r => r.reality === 'VRTUL').length, color: 'bg-purple-100 text-purple-800 border-purple-200' },
+                { reality: 'AUGMT', count: repositories.filter(r => r.reality === 'AUGMT').length, color: 'bg-green-100 text-green-800 border-green-200' },
+                { reality: 'MIXRL', count: repositories.filter(r => r.reality === 'MIXRL').length, color: 'bg-orange-100 text-orange-800 border-orange-200' },
+                { reality: 'SIMUL', count: repositories.filter(r => r.reality === 'SIMUL').length, color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
+                { reality: 'EXTND', count: repositories.filter(r => r.reality === 'EXTND').length, color: 'bg-pink-100 text-pink-800 border-pink-200' },
+                { reality: 'HYBRD', count: repositories.filter(r => r.reality === 'HYBRD').length, color: 'bg-indigo-100 text-indigo-800 border-indigo-200' },
+                { reality: 'OPERT', count: repositories.filter(r => r.reality === 'OPERT').length, color: 'bg-teal-100 text-teal-800 border-teal-200' }
+              ].map((portal) => (
+                <motion.div
+                  key={portal.reality}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  className="cursor-pointer"
+                  onClick={() => setRepositoryFilter(portal.reality)}
+                >
+                  <Card className="hover:shadow-lg transition-all duration-300">
+                    <CardContent className="p-4 text-center">
+                      <Badge variant="outline" className={`${portal.color} mb-2`}>
+                        {portal.reality}
+                      </Badge>
+                      <div className="text-2xl font-bold mb-1">{portal.count}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {portal.count === 1 ? 'Portal' : 'Portals'}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+
+            {repositoryFilter !== 'all' && (
+              <div className="flex items-center gap-2 mb-4">
+                <Badge variant="outline" className={getRealityColor(repositoryFilter as Repository['reality'])}>
+                  {repositoryFilter}
+                </Badge>
+                <span className="text-sm text-muted-foreground">
+                  {getRealityDescription(repositoryFilter as Repository['reality'])}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setRepositoryFilter('all')}
+                >
+                  <X size={14} className="mr-1" />
+                  Clear Filter
+                </Button>
+              </div>
+            )}
             
             <div className="grid gap-4">
               {filteredRepositories.map((repo) => (

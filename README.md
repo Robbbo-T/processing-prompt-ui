@@ -1,54 +1,79 @@
-# Processing Prompt UI - AI-Powered Template Generator
+# Processing Prompt UI - AQUA V. Template Generator
 
-A modern web application for generating, editing, and collaborating on document templates using AI. Built with React, TypeScript, and advanced real-time collaboration features.
+## Overview
 
-## 🚀 Features
+Processing Prompt UI is an advanced AI-powered template generation interface that transforms AQUA V. nomenclature codes into comprehensive, multi-format documentation with real-time collaboration and reality-aware compilation.
 
-### Template Generation
-- **AI-Powered Generation**: Generate comprehensive documents using advanced LLM integration
-- **Multiple Output Formats**: Support for Markdown, HTML5, and Word document formats
-- **Template Library**: Extensive collection of industry-standard templates across all lifecycle phases
-- **Custom Prompts**: Add specific requirements and context for tailored document generation
+![Processing Prompt UI](https://img.shields.io/badge/Status-Active-green)
+![AI Integration](https://img.shields.io/badge/AI-LLM%20Powered-blue)
+![Reality Support](https://img.shields.io/badge/Reality-Multi%20Context-purple)
 
-### Real-Time Collaboration
-- **Live Editing**: Multiple users can edit documents simultaneously with real-time synchronization
-- **Cursor Tracking**: See where other collaborators are working in real-time
-- **Comments System**: Add, resolve, and manage comments with threading support
-- **Activity Feed**: Track all changes and actions in collaborative sessions
-- **User Presence**: View who's online, idle, or offline in your team
+## 🚀 Key Features
 
-### Document Management
-- **Version Control**: Track document versions and changes over time
-- **Repository Integration**: Save to local or network repositories
-- **Document Preview**: Live preview with support for multiple formats
-- **Status Tracking**: Manage document lifecycle from draft to published
+### 🧠 Driven Prompting Quiz System
+- **Interactive Guided Questionnaire**: Step-by-step nomenclature building with real-time validation
+- **AQUA V. Standards Compliance**: Automatic validation against v12.3 nomenclature structure
+- **Educational Context**: Learn proper nomenclature construction through guided interaction
+- **Error Prevention**: Eliminate common mistakes with contextual validation
 
-### Advanced Features
-- **Multi-Phase Templates**: Support for 15 different lifecycle phases (STR, CON, DES, etc.)
-- **Criticality Classification**: Templates categorized by importance level
-- **Responsive Design**: Optimized for desktop, tablet, and mobile devices
-- **Modern UI**: Clean, professional interface with smooth animations
+### 🤖 AI-Powered Template Generation
+- **LLM Integration**: Advanced prompt engineering with context-aware generation
+- **Multi-Format Output**: Generate Markdown, HTML5, and Word documents
+- **Nomenclature Parsing**: Intelligent parsing of AQUA V. codes for enhanced context
+- **Custom Prompting**: Add specific requirements and technical context
 
-## 🛠 Tech Stack
+### 👥 Real-time Collaborative Editing
+- **Live Cursors**: See collaborators' positions and selections in real-time
+- **Comments System**: Contextual comments with threading and resolution
+- **Change Tracking**: Monitor edits and activity feed
+- **Conflict Resolution**: Seamless collaborative editing without conflicts
 
-- **Frontend**: React 18, TypeScript, Vite
-- **Styling**: Tailwind CSS, shadcn/ui components
-- **State Management**: React hooks, persistent KV storage
-- **Animations**: Framer Motion
-- **Icons**: Phosphor Icons
-- **Fonts**: Inter (UI), JetBrains Mono (code)
+### 🌐 Reality Portal Management
+- **Reality Classification**: Organize repositories by rendering context (PHYSL, VRTUL, AUGMT, etc.)
+- **Portal Dashboard**: Visual overview of reality-specific document repositories
+- **Context-Aware Browsing**: Browse documents within their appropriate reality context
+- **Cross-Reality Discovery**: Find related documents across different reality portals
 
-## 📋 Requirements
+## 🏗️ Architecture
 
+### Reality Contexts Supported
+
+| Reality | Code | Description | Portal Features |
+|---------|------|-------------|-----------------|
+| **Physical** | PHYSL | Traditional documentation for physical systems | PDF rendering, manufacturing specs |
+| **Virtual** | VRTUL | Immersive 3D documentation and training | 3D preview, VR compatibility |
+| **Augmented** | AUGMT | Enhanced real-world documentation | AR overlays, spatial anchors |
+| **Mixed** | MIXRL | Hybrid physical-digital experiences | Multi-modal interaction |
+| **Simulation** | SIMUL | Virtual testing and scenario documentation | Test data, physics models |
+| **Extended** | EXTND | Advanced immersive technologies | XR compatibility, research docs |
+| **Hybrid** | HYBRD | Multi-modal reality experiences | Cross-platform support |
+| **Operational** | OPERT | Live system documentation | Real-time updates, operational data |
+
+### Document Lifecycle
+
+```mermaid
+graph TD
+    A[Driven Prompting Quiz] --> B[Nomenclature Generation]
+    B --> C[Template Selection]
+    C --> D[AI Content Generation]
+    D --> E[Raw Code Review]
+    E --> F[Live Preview]
+    F --> G[Collaborative Editing]
+    G --> H[Reality Portal Publication]
+```
+
+## 🎯 Getting Started
+
+### Prerequisites
 - Node.js 18+ 
-- Modern web browser with JavaScript enabled
-- Internet connection for AI features
+- Modern web browser with WebGL support
+- Access to AQUA V. systems (for full functionality)
 
-## 🚀 Getting Started
+### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/aqua-v/processing-prompt-ui.git
    cd processing-prompt-ui
    ```
 
@@ -57,126 +82,198 @@ A modern web application for generating, editing, and collaborating on document 
    npm install
    ```
 
-3. **Start the development server**
+3. **Start development server**
    ```bash
    npm run dev
    ```
 
-4. **Open your browser**
+4. **Open in browser**
    Navigate to `http://localhost:5173`
 
-## 📖 Usage Guide
+### Quick Start Guide
 
-### Generating Templates
+1. **Start with Driven Prompting**
+   - Click "Guided Quiz" in the header or navigate to the Driven Prompting tab
+   - Follow the interactive questionnaire to build a valid AQUA V. nomenclature
+   - The system will guide you through each field with validation and help text
 
-1. **Browse Templates**: Explore the Template Library to find the document type you need
-2. **Configure Options**: Select output format (Markdown/HTML/DOCX) and repository path
-3. **Add Context**: Include custom prompts for specific requirements
-4. **Generate**: Click "Generate with AI" to create your document
-5. **Review Process**: 
-   - Review raw code generated by AI
-   - Preview the rendered output
-   - Format and finalize the document
-   - Publish or save to repository
+2. **Generate Templates**
+   - Browse the Template Library for pre-built templates
+   - Use your generated nomenclature code for enhanced context
+   - Configure output format (Markdown, HTML, Word)
+   - Select appropriate Reality Portal for publication
 
-### Collaborative Editing
+3. **Collaborative Editing**
+   - Start a collaborative session from Generated Documents
+   - Invite team members to edit in real-time
+   - Use comments for feedback and discussion
+   - Track changes in the activity feed
 
-1. **Start Session**: From Generated Documents, click "Collaborate" on any document
-2. **Invite Team**: Active team members will automatically join the session
-3. **Real-Time Editing**: 
-   - Edit content in the left panel
-   - See live preview in the right panel
-   - View other users' cursors and selections
-4. **Communication**:
-   - Add comments with the Comments panel
-   - Resolve discussions when complete
-   - Monitor activity feed for all changes
-5. **Save & Sync**: Changes are automatically synchronized across all participants
+4. **Reality Portal Management**
+   - Configure repositories by reality context
+   - Browse documents within appropriate portals
+   - Manage cross-reality document relationships
 
-### Repository Management
+## 📚 Documentation Structure
 
-- **Local Storage**: Documents saved locally for quick access
-- **Network Repositories**: Configure SMB or other network storage
-- **Version Control**: Track changes and maintain document history
-- **Export Options**: Download in various formats for external use
-
-## 🎨 Customization
-
-### Theme Configuration
-
-The application uses CSS custom properties for theming. Modify `src/index.css` to customize:
-
-- **Colors**: Primary, secondary, accent, and semantic colors
-- **Typography**: Font families and sizes
-- **Spacing**: Border radius and layout spacing
-- **Dark Mode**: (Can be implemented by updating CSS variables)
-
-### Template Customization
-
-Add new templates by extending the `sampleTemplates` array in `App.tsx`:
-
-```typescript
-{
-  id: 'custom-1',
-  name: 'Your Template Name',
-  description: 'Template description',
-  phase: 'DES', // Lifecycle phase
-  type: 'Requirements',
-  docCode: 'YTN',
-  version: 'v1.0.0',
-  criticality: 'Critical',
-  lastModified: '2024-01-15'
-}
+### AQUA V. Nomenclature Format
 ```
+[LINE]-[PRODUCT]-[VARIANT]-[NUMBER]-[PHASE]-[CRITICALITY]-[DOCUMENT]-[APPLICATION]-[METHOD]-[REALITY]-[UTCS]-[REGULATORY]-[VERSION]
+```
+
+**Example:**
+```
+AMPEL3-BWB-Q100-0001-MNT-SE-AMM-TSG-TR-VF-E001-0001-AUGMT-07150000000-MUL-v2.0.0
+```
+
+### Template Categories by Phase
+
+| Phase | Code | Templates Available | Criticality Levels |
+|-------|------|--------------------|--------------------|
+| Strategy & Planning | STR | Business Plans, Market Analysis | Critical, Essential |
+| Conceptual & Feasibility | CON | Requirements, Feasibility Studies | Critical, Essential |
+| Design & Engineering | DES | SRS, HDD, System Specs | Critical, Essential, Important |
+| Development & Prototyping | DEV | Implementation Plans, Build Specs | Critical, Essential |
+| Testing & Validation | TST | Test Plans, Reports, Analysis | Critical, Essential |
+| Production & Manufacturing | PRD | Manufacturing Specs, Quality Plans | Critical, Essential |
+| Operations & Service | OPS | Manuals, Procedures, Policies | Critical, Essential, Important |
+| Maintenance & Support | MNT | Maintenance Manuals, Service Bulletins | Critical, Essential |
 
 ## 🔧 Configuration
 
 ### Environment Variables
 
-Create a `.env` file for configuration:
-
 ```env
-VITE_APP_TITLE="Processing Prompt UI"
-VITE_DEFAULT_REPOSITORY_PATH="/local/templates/"
-VITE_MAX_COLLABORATORS=10
+# AI Integration
+VITE_LLM_ENDPOINT=https://api.aqua-v.com/llm
+VITE_LLM_MODEL=gpt-4o
+
+# Repository Configuration
+VITE_DEFAULT_REPOSITORY_PATH=/local/aqua-v/docs
+VITE_NETWORK_REPOSITORY_BASE=smb://aqua-v-net
+
+# Reality Portal Settings
+VITE_PHYSL_PORTAL_URL=/portal/physical
+VITE_VRTUL_PORTAL_URL=/portal/virtual
+VITE_AUGMT_PORTAL_URL=/portal/augmented
 ```
 
-### API Integration
+### Repository Structure
 
-The application uses the Spark runtime API for:
-- **LLM Calls**: `spark.llm()` for AI generation
-- **Data Persistence**: `spark.kv` for storage
-- **User Context**: `spark.user()` for authentication
+```
+AQUA_V/
+├── real_physl/         # Physical Reality Portal
+│   ├── templates/
+│   ├── generated/
+│   └── archive/
+├── real_vrtul/         # Virtual Reality Portal
+│   ├── 3d_models/
+│   ├── vr_scenes/
+│   └── immersive_docs/
+├── real_augmt/         # Augmented Reality Portal
+│   ├── ar_overlays/
+│   ├── spatial_anchors/
+│   └── field_manuals/
+└── [other reality contexts...]
+```
 
-## 📱 Browser Support
+## 🧪 Development
 
-- Chrome 90+
-- Firefox 90+
-- Safari 14+
-- Edge 90+
+### Tech Stack
+- **Frontend**: React 18, TypeScript, Tailwind CSS
+- **UI Components**: shadcn/ui v4
+- **Animations**: Framer Motion
+- **State Management**: React Hooks, Local Storage
+- **AI Integration**: Custom LLM API integration
+- **Build Tool**: Vite
 
-## 🤝 Contributing
+### Project Structure
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines and contribution process.
+```
+src/
+├── components/          # Reusable UI components
+│   └── ui/             # shadcn/ui components
+├── hooks/              # Custom React hooks
+├── lib/                # Utility functions
+├── styles/             # Global styles
+├── App.tsx             # Main application component
+└── main.tsx           # Application entry point
+```
 
-## 📄 License
+### Contributing
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+1. **Fork the repository**
+2. **Create a feature branch** (`git checkout -b feature/amazing-feature`)
+3. **Commit changes** (`git commit -m 'Add amazing feature'`)
+4. **Push to branch** (`git push origin feature/amazing-feature`)
+5. **Open a Pull Request**
+
+### Code Standards
+- **TypeScript**: Strict mode enabled
+- **ESLint**: Extended configuration with React hooks
+- **Prettier**: Code formatting
+- **Conventional Commits**: Commit message format
+
+## 🔒 Security & Compliance
+
+### Data Security
+- **Local Storage**: Sensitive data stored locally by default
+- **Encryption**: Optional encryption for classified documents
+- **Access Control**: Role-based repository access
+- **Audit Trail**: Complete activity logging
+
+### AQUA V. Compliance
+- **Nomenclature Standards**: v12.3 compliance validation
+- **Document Templates**: Certified template library
+- **Reality Classification**: Proper context classification
+- **Version Control**: Full document lifecycle tracking
+
+## 📊 Performance
+
+### Optimization Features
+- **Lazy Loading**: Components and templates loaded on demand
+- **Virtual Scrolling**: Efficient large list rendering
+- **Code Splitting**: Automatic bundle optimization
+- **Caching**: Intelligent template and document caching
+
+### Browser Requirements
+- **Modern Browsers**: Chrome 90+, Firefox 88+, Safari 14+
+- **WebGL**: Required for 3D previews
+- **Local Storage**: 10MB+ recommended
+- **Network**: High-speed recommended for collaboration
 
 ## 🆘 Support
 
-For support and questions:
-- Check the in-app help documentation
-- Review the FAQ section
-- Contact the development team
-- Submit issues through the issue tracker
+### Getting Help
+- **Documentation**: Comprehensive guides in `/docs`
+- **Examples**: Sample templates and configurations
+- **Community**: Join the AQUA V. developer community
+- **Support**: Contact support@aqua-v.com
 
-## 🔄 Version History
+### Troubleshooting
 
-- **v1.0.0**: Initial release with template generation
-- **v1.1.0**: Added real-time collaboration features
-- **v1.2.0**: Enhanced document management and repository integration
+| Issue | Solution |
+|-------|----------|
+| Quiz not loading | Check browser JavaScript settings |
+| AI generation fails | Verify LLM endpoint configuration |
+| Collaboration issues | Check network connectivity |
+| Repository sync problems | Verify repository permissions |
+
+## 📝 License
+
+This project is licensed under the AQUA V. Enterprise License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **AQUA V. Team**: Core development and design
+- **AI Research Division**: LLM integration and optimization
+- **Reality Labs**: Multi-context rendering development
+- **Community Contributors**: Testing and feedback
 
 ---
 
-Built with ❤️ for modern document collaboration and AI-powered content generation.
+**Version:** 1.0.0  
+**Last Updated:** 2024-01-15  
+**Compatibility:** AQUA V. v12.3+
+
+For the latest updates and documentation, visit: [https://docs.aqua-v.com/processing-prompt-ui](https://docs.aqua-v.com/processing-prompt-ui)

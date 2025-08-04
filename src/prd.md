@@ -35,10 +35,15 @@
 
 ## Essential Features
 
-### AI-Powered Template Generation
-- **Functionality**: Generate comprehensive documents from AQUA nomenclature using LLM integration
-- **Purpose**: Transform structured codes into readable, standards-compliant documentation
-- **Success Criteria**: 95% accuracy in nomenclature parsing, contextually appropriate content generation
+### AI-Powered Template Generation with Driven Prompting
+- **Functionality**: Generate comprehensive documents from AQUA nomenclature using LLM integration with guided iterative prompting
+- **Purpose**: Transform structured codes into readable, standards-compliant documentation through interactive quiz-based nomenclature building
+- **Success Criteria**: 95% accuracy in nomenclature parsing, contextually appropriate content generation, guided workflow completion in under 5 minutes
+
+### Driven Prompting Quiz System
+- **Functionality**: Interactive guided questionnaire that builds AQUA V. nomenclature codes step-by-step with validation
+- **Purpose**: Eliminate nomenclature errors and provide educational context for proper code construction
+- **Success Criteria**: 100% valid nomenclature generation, progressive field validation, contextual help system
 
 ### Real-time Collaborative Editing
 - **Functionality**: Multi-user editing with live cursors, comments, and change tracking
@@ -55,10 +60,10 @@
 - **Purpose**: Accelerate documentation workflows through standardization
 - **Success Criteria**: <2 second template loading, intelligent categorization
 
-### Repository Integration
-- **Functionality**: Save to local and network repositories with version control
-- **Purpose**: Maintain document history and enable enterprise integration
-- **Success Criteria**: Reliable saves to multiple repository types, proper versioning
+### Repository Integration by Reality Context
+- **Functionality**: Save to reality-classified repositories (PHYSL, VRTUL, AUGMT, MIXRL, SIMUL, EXTND, HYBRD, OPERT) with appropriate rendering portals
+- **Purpose**: Organize documentation by rendering reality and enable context-aware browsing and deployment
+- **Success Criteria**: Automatic reality classification, appropriate portal routing, seamless cross-reality document discovery
 
 ## Design Direction
 
