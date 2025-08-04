@@ -1496,11 +1496,11 @@ function App() {
                                       <div>
                                         <span className="text-muted-foreground">Product:</span> {currentStep.nomenclatureData.product}-{currentStep.nomenclatureData.variant}
                                       </div>
-                                      <div>
+                                      </div>
+                                        <span className="text-muted-foreground">Phase:</span> {currentStep.nomenclatureData.phase}
                                         <span className="text-muted-foreground">Phase:</span> {currentStep.nomenclatureData.phase}
                                       </div>
                                       <div>
-                                        <span className="text-muted-foreground">Reality:</span> {currentStep.nomenclatureData.reality}
                                       </div>
                                     </div>
                                   </div>
