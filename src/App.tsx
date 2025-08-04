@@ -1498,10 +1498,9 @@ function App() {
                                       </div>
                                       <div>
                                         <span className="text-muted-foreground">Reality:</span> {currentStep.nomenclatureData.reality}
-                                      </div>
                                     </div>
                                   </div>
-                                )}
+                                        <span className="text-muted-foreground">Reality:</span> {currentStep.nomenclatureData.reality}
 
                                 {currentStep.step === 'raw-review' && currentDocument && (
                                   <div className="space-y-4">
