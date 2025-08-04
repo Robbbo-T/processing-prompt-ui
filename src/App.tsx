@@ -1997,54 +1997,55 @@ function App() {
 
                                 {/* Nomenclature Analysis */}
                                 {currentStep.nomenclatureData && (
-                                  <div className="bg-muted/50 border rounded-lg p-4 space-y-2">
-                                    <div className="flex items-center gap-2 text-sm font-medium text-primary">
-                                      <CheckCircle size={16} />
-                                      Nomenclature Analysis Complete
+                                  <>
+                                    <div className="bg-muted/50 border rounded-lg p-4 space-y-2">
+                                      <div className="flex items-center gap-2 text-sm font-medium text-primary">
+                                        <CheckCircle size={16} />
+                                        Nomenclature Analysis Complete
+                                      </div>
+                                      <div className="grid grid-cols-2 gap-4 text-xs">
+                                        <div>
+                                          <span className="text-muted-foreground">Line:</span> {currentStep.nomenclatureData.line}
+                                        </div>
+                                        <div>
+                                          <span className="text-muted-foreground">Product:</span> {currentStep.nomenclatureData.product}-{currentStep.nomenclatureData.variant}
+                                        </div>
+                                        <div>
+                                          <span className="text-muted-foreground">Phase:</span> {currentStep.nomenclatureData.phase}
+                                        </div>
+                                        <div>
+                                          <span className="text-muted-foreground">Reality:</span> {currentStep.nomenclatureData.reality}
+                                        </div>
+                                      </div>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4 text-xs">
-                                      <div>
-                                        <span className="text-muted-foreground">Line:</span> {currentStep.nomenclatureData.line}
-                                      </div>
-                                      <div>
-                                        <span className="text-muted-foreground">Product:</span> {currentStep.nomenclatureData.product}-{currentStep.nomenclatureData.variant}
-                                      </div>
-                                      <div>
-                                        <span className="text-muted-foreground">Phase:</span> {currentStep.nomenclatureData.phase}
-                                      </div>
-                                      <div>
-                                        <span className="text-muted-foreground">Reality:</span> {currentStep.nomenclatureData.reality}
-                                      </div>
-                                    </div>
-                                  </div>
 
-
-                                  <div className="space-y-4">
-                                    <div className="flex items-center justify-between">
-                                      <h3 className="text-lg font-semibold">Raw Code Review</h3>
-                                      <div className="flex gap-2">
-                                        <Button variant="outline" size="sm" onClick={handleCopyToClipboard}>
-                                          {copied ? <Check size={16} /> : <Copy size={16} />}
-                                          {copied ? 'Copied!' : 'Copy'}
+                                    <div className="space-y-4">
+                                      <div className="flex items-center justify-between">
+                                        <h3 className="text-lg font-semibold">Raw Code Review</h3>
+                                        <div className="flex gap-2">
+                                          <Button variant="outline" size="sm" onClick={handleCopyToClipboard}>
+                                            {copied ? <Check size={16} /> : <Copy size={16} />}
+                                            {copied ? 'Copied!' : 'Copy'}
+                                          </Button>
+                                          <Badge variant="secondary">{currentDocument.format?.toUpperCase() || 'UNKNOWN'}</Badge>
+                                        </div>
+                                      </div>
+                                      <ScrollArea className="h-96 w-full border rounded-lg">
+                                        <pre className="p-4 text-sm font-mono whitespace-pre-wrap">
+                                          {currentDocument.rawContent}
+                                        </pre>
+                                      </ScrollArea>
+                                      <div className="flex justify-end gap-2">
+                                        <Button variant="outline" onClick={() => { setIsGenerating(false); setIsDialogOpen(false) }}>
+                                          Cancel
                                         </Button>
-                                        <Badge variant="secondary">{currentDocument.format?.toUpperCase() || 'UNKNOWN'}</Badge>
+                                        <Button onClick={handleApproveRaw}>
+                                          <Eye size={16} className="mr-2" />
+                                          Preview Rendering
+                                        </Button>
                                       </div>
                                     </div>
-                                    <ScrollArea className="h-96 w-full border rounded-lg">
-                                      <pre className="p-4 text-sm font-mono whitespace-pre-wrap">
-                                        {currentDocument.rawContent}
-                                      </pre>
-                                    </ScrollArea>
-                                    <div className="flex justify-end gap-2">
-                                      <Button variant="outline" onClick={() => { setIsGenerating(false); setIsDialogOpen(false) }}>
-                                        Cancel
-                                      </Button>
-                                      <Button onClick={handleApproveRaw}>
-                                        <Eye size={16} className="mr-2" />
-                                        Preview Rendering
-                                      </Button>
-                                    </div>
-                                  </div>
+                                  </>
                                 )}
 
                                 {currentStep.step === 'preview' && currentDocument && (
