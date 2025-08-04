@@ -630,10 +630,6 @@ function App() {
     }
   }
 
-  const handleFileSelection = (fileName: string) => {
-    setSelectedFiles(prev => 
-      prev.includes(fileName) 
-        ? prev.filter(f => f !== fileName)
         : [...prev, fileName]
     )
   }
@@ -653,6 +649,10 @@ function App() {
     item.description.toLowerCase().includes(repositorySearchQuery.toLowerCase())
   )
 
+  const generateMockRepositoryContents = (repo: Repository) => {
+    const baseContents = [
+      { 
+        name: 'templates/', 
   const generateMockRepositoryContents = (repo: Repository) => {
     const baseContents = [
       { 
@@ -689,10 +689,6 @@ function App() {
       }
     ]
 
-    // Add reality-specific content
-    switch (repo.reality) {
-      case 'PHYSL':
-        return [
           ...baseContents,
           { 
             name: 'manufacturing-specs.pdf', 
@@ -702,13 +698,17 @@ function App() {
             reality: 'PHYSL',
             description: 'Physical manufacturing specifications'
           },
-          { 
+            modified: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
             name: 'assembly-manual.docx', 
             type: 'file', 
             size: '1.8 MB', 
             modified: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
             reality: 'PHYSL',
             description: 'Physical assembly procedures'
+          },
+            modified: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+            name: 'quality-standards.xlsx', 
+            type: 'file', 
           },
           { 
             name: 'quality-standards.xlsx', 
@@ -717,26 +717,26 @@ function App() {
             modified: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
             reality: 'PHYSL',
             description: 'Quality control standards and metrics'
-          }
-        ]
-      case 'VRTUL':
-        return [
           ...baseContents,
           { 
             name: 'vr-training-modules/', 
             type: 'folder', 
+          ...baseContents,
+          { : new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+            name: 'vr-training-modules/', 
+            type: 'folder',  content'
             size: null, 
             modified: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
             reality: 'VRTUL',
             description: 'Virtual reality training content'
-          },
-          { 
-            name: '3d-models.fbx', 
-            type: 'file', 
             size: '15.2 MB', 
             modified: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
             reality: 'VRTUL',
             description: '3D model assets for VR'
+          },
+            modified: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+            name: 'vr-scene-config.json', 
+            type: 'file', 
           },
           { 
             name: 'vr-scene-config.json', 
@@ -753,30 +753,30 @@ function App() {
             modified: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
             reality: 'VRTUL',
             description: 'Interactive VR documentation'
-          }
-        ]
-      case 'AUGMT':
-        return [
           ...baseContents,
           { 
             name: 'ar-maintenance-guides/', 
             type: 'folder', 
-            size: null, 
+          ...baseContents,
             modified: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
             reality: 'AUGMT',
             description: 'AR-enhanced maintenance documentation'
           },
-          { 
+            modified: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
             name: 'spatial-anchors.json', 
+            type: 'file', 
+          },
+            modified: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+            reality: 'AUGMT',
             type: 'file', 
             size: '156 KB', 
             modified: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
             reality: 'AUGMT',
             description: 'AR spatial positioning data'
-          },
-          { 
+            size: '892 KB', 
+            modified: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
             name: 'ar-overlay-templates.xml', 
-            type: 'file', 
+            description: 'AR overlay templates and configurations'
             size: '892 KB', 
             modified: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
             reality: 'AUGMT',
@@ -786,41 +786,41 @@ function App() {
             name: 'field-manual-ar.pdf', 
             type: 'file', 
             size: '12.7 MB', 
-            modified: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+        ]  
             reality: 'AUGMT',
             description: 'Field manual with AR enhancement markers'
           }
         ]  
       case 'SIMUL':
-        return [
-          ...baseContents,
-          { 
-            name: 'simulation-scenarios/', 
             type: 'folder', 
             size: null, 
             modified: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
             reality: 'SIMUL',
             description: 'Simulation test scenarios'
           },
-          { 
+            modified: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
             name: 'test-data.csv', 
             type: 'file', 
-            size: '4.7 MB', 
+          },
             modified: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
             reality: 'SIMUL',
             description: 'Simulation test results'
+          },
+            modified: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+            name: 'physics-models.json', 
+            type: 'file', 
           },
           { 
             name: 'physics-models.json', 
             type: 'file', 
             size: '2.3 MB', 
-            modified: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-            reality: 'SIMUL',
-            description: 'Physics simulation models and parameters'
-          },
           { 
+            reality: 'SIMUL',html', 
+            description: 'Physics simulation models and parameters'
+            size: '1.9 MB', 
+            modified: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
             name: 'validation-reports.html', 
-            type: 'file', 
+            description: 'Simulation validation and verification reports'
             size: '1.9 MB', 
             modified: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
             reality: 'SIMUL',
@@ -837,12 +837,12 @@ function App() {
             modified: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
             reality: 'MIXRL',
             description: 'Mixed reality training materials'
-          },
-          { 
-            name: 'holographic-displays.xml', 
-            type: 'file', 
             size: '678 KB', 
             modified: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
+            name: 'holographic-displays.xml', 
+            description: 'Holographic display configurations'
+            size: '678 KB', 
+        ]
             reality: 'MIXRL',
             description: 'Holographic display configurations'
           }
@@ -865,10 +865,6 @@ function App() {
     }
   }
 
-  const handleGenerate = async (template: Template) => {
-    setSelectedTemplate(template)
-    setIsGenerating(true)
-    setCurrentStep({ step: 'parsing', progress: 0, message: 'Analyzing nomenclature...' })
     setIsDialogOpen(true)
 
     try {
@@ -877,13 +873,17 @@ function App() {
       
       if (nomenclatureInput.trim()) {
         setCurrentStep({ step: 'parsing', progress: 25, message: 'Parsing AQUA V. nomenclature...' })
-        await new Promise(resolve => setTimeout(resolve, 800))
+      let nomenclatureData: NomenclatureData | null = null
         
         nomenclatureData = parseNomenclature(nomenclatureInput)
         if (!nomenclatureData) {
           throw new Error('Invalid nomenclature format. Please check the AQUA V. nomenclature structure.')
         }
 
+        // Validate compatibility
+          throw new Error('Invalid nomenclature format. Please check the AQUA V. nomenclature structure.')
+          toast.error('Nomenclature pattern does not match template requirements')
+        }
         // Validate compatibility
         if (!validateNomenclaturePattern(nomenclatureData, template)) {
           toast.error('Nomenclature pattern does not match template requirements')
@@ -895,17 +895,13 @@ function App() {
           progress: 50, 
           message: `Parsed: ${nomenclatureData.description}`,
           nomenclatureData 
-        })
-      }
+        })ting', progress: 60, message: 'Generating document content...' })
+      }etTimeout(resolve, 1000))
 
       // Step 2: Generate content with AI
       setCurrentStep({ step: 'generating', progress: 60, message: 'Generating document content...' })
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      const contextPrompt = nomenclatureData ? 
-        `Based on AQUA V. nomenclature: ${nomenclatureInput}
         
-        Line: ${nomenclatureData.line} (${nomenclatureData.description})
+e: ${nomenclatureData.line} (${nomenclatureData.description})
         Product: ${nomenclatureData.product}-${nomenclatureData.variant}
         Phase: ${nomenclatureData.phase}
         Document Type: ${nomenclatureData.document}
@@ -913,7 +909,7 @@ function App() {
         Criticality: ${nomenclatureData.criticality}
         Regulatory: ${nomenclatureData.regulatory}
         
-        ` : 'Standard template implementation: '
+        Reality Context: ${nomenclatureData.reality}
 
       const prompt = spark.llmPrompt`Generate a comprehensive ${template.name} document in ${outputFormat} format.
 
@@ -921,32 +917,36 @@ function App() {
       
       Template Requirements:
       - Name: ${template.name}
-      - Description: ${template.description} 
+      ${contextPrompt}
       - Phase: ${template.phase}
+      - Document Code: ${template.docCode}
+      - Name: ${template.name}
+      - Description: ${template.description} 
+      - Phase: ${template.phase}andards and best practices for technical documentation.'}
       - Document Code: ${template.docCode}
       - Output Format: ${outputFormat}
       
       Additional Context: ${customPrompt || 'Follow aerospace industry standards and best practices for technical documentation.'}
       
-      Requirements:
+      Requirements: regulatory considerations
       1. Create comprehensive, industry-standard documentation
       2. Include proper section headers and structure
-      3. Add relevant technical specifications where applicable
-      4. Include compliance and regulatory considerations
+      3. Add relevant technical specifications where applicablebles, and code blocks.' : ''}
+      4. Include compliance and regulatory considerationsre and styling classes.' : ''}
       5. Format appropriately for ${outputFormat}
       
       ${outputFormat === 'markdown' ? 'Use proper markdown syntax with headers, lists, tables, and code blocks.' : ''}
-      ${outputFormat === 'html' ? 'Generate clean, semantic HTML5 with proper structure and styling classes.' : ''}
-      ${outputFormat === 'docx' ? 'Structure the content for Word document format with proper headings and formatting.' : ''}
+
+      const rawContent = await spark.llm(prompt)
       
-      The document should be production-ready and comprehensive.`
+      The document should be production-ready and comprehensive.`ted successfully' })
 
       const rawContent = await spark.llm(prompt)
       
       setCurrentStep({ step: 'raw-review', progress: 85, message: 'Content generated successfully' })
-      
+      d,
       // Create the document object
-      const newDocument: GeneratedDocument = {
+      const newDocument: GeneratedDocument = {g()}` :
         id: `doc-${Date.now()}`,
         templateId: template.id,
         name: nomenclatureData ? 
@@ -956,12 +956,8 @@ function App() {
         renderedContent: rawContent,
         format: outputFormat,
         status: 'draft',
-        metadata: {
+        metadata: {eData?.version || '1.0.0',
           author: 'AQUA V. AI Generator',
-          created: new Date().toISOString(),
-          repository: repositoryPath || 'local://documents/',
-          version: nomenclatureData?.version || '1.0.0',
-          lastModified: new Date().toISOString()
         }
       }
 
@@ -2245,6 +2241,10 @@ function App() {
                                     <div className="relative">
                                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={16} />
                                       <Input
+                                    {/* Repository Search */}
+                                    <div className="relative">
+                                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={16} />
+                                      <Input
                                         placeholder="Search files and folders..."
                                         value={repositorySearchQuery}
                                         onChange={(e) => setRepositorySearchQuery(e.target.value)}
@@ -2252,10 +2252,6 @@ function App() {
                                       />
                                     </div>
 
-                                    <ScrollArea className="h-[400px] border rounded-lg">
-                                      <div className="p-4">
-                                        {loadingRepository ? (
-                                          <div className="flex items-center justify-center py-8">
                                             <div className="text-muted-foreground">Loading repository contents...</div>
                                           </div>
                                         ) : (
@@ -2264,16 +2260,16 @@ function App() {
                                               <motion.div
                                                 key={index}
                                                 initial={{ opacity: 0, x: -10 }}
-                                                animate={{ opacity: 1, x: 0 }}
+                                            {filteredRepositoryContents.map((item, index) => (
                                                 transition={{ delay: index * 0.05 }}
                                                 className={`flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors ${
                                                   selectedFiles.includes(item.name) ? 'bg-primary/10 border border-primary/20' : ''
                                                 }`}
                                                 onClick={() => item.type === 'file' && handleFileSelection(item.name)}
-                                              >
-                                                <div className="flex-shrink-0">
-                                                  {item.type === 'folder' ? (
-                                                    <Folder size={20} className="text-blue-500" />
+                                                className={`flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors ${
+                                                  selectedFiles.includes(item.name) ? 'bg-primary/10 border border-primary/20' : ''
+                                                }`}
+                                                onClick={() => item.type === 'file' && handleFileSelection(item.name)}
                                                   ) : (
                                                     <File size={20} className="text-gray-500" />
                                                   )}
@@ -2295,17 +2291,17 @@ function App() {
                                                   <Check size={16} className="text-primary" />
                                                 )}
                                               </motion.div>
-                                            ))}
+                                                {item.type === 'file' && selectedFiles.includes(item.name) && (
+                                                  <Check size={16} className="text-primary" />
+                                                )}
+                                              <div className="text-center py-8 text-muted-foreground">
+                                                {repositorySearchQuery ? 'No files match your search' : 'This repository is empty'}
                                             
                                             {filteredRepositoryContents.length === 0 && !loadingRepository && (
                                               <div className="text-center py-8 text-muted-foreground">
                                                 {repositorySearchQuery ? 'No files match your search' : 'This repository is empty'}
                                               </div>
                                             )}
-                                          </div>
-                                        )}
-                                      </div>
-                                    </ScrollArea>
 
                                     <div className="flex items-center justify-between pt-4 border-t">
                                       <div className="text-sm text-muted-foreground">
@@ -2313,17 +2309,17 @@ function App() {
                                         {selectedFiles.length > 0 && ` • ${selectedFiles.length} selected`}
                                         {' '} • Reality: {browsingRepository.reality}
                                       </div>
-                                      <div className="flex gap-2">
+                                        {filteredRepositoryContents.length} items 
+                                        {selectedFiles.length > 0 && ` • ${selectedFiles.length} selected`}
+                                        {' '} • Reality: {browsingRepository.reality}
+                                          size="sm"
+                                          onClick={handleDownloadSelected}
                                         <Button 
                                           variant="outline" 
                                           size="sm"
                                           onClick={handleDownloadSelected}
                                           disabled={selectedFiles.length === 0}
                                         >
-                                          <Download size={16} className="mr-2" />
-                                          Download Selected
-                                        </Button>
-                                        <Button variant="outline" size="sm">
                                           <Plus size={16} className="mr-2" />
                                           Upload
                                         </Button>
@@ -2373,4 +2369,4 @@ function App() {
   )
 }
 
-export default App;
+export default App;export default App;
