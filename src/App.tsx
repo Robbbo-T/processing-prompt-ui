@@ -3,7 +3,8 @@ import { useKV } from '@github/spark/hooks'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Download, Robot, FolderOpen, GitBranch, Plus, Search, Filter, Code, Eye, FileText, Share, Copy, Check,
-  Users, MessageCircle, Clock, Pencil, UserCircle, ChatCircle, PushPin, X, Play
+  Users, MessageCircle, Clock, Pencil, UserCircle, ChatCircle, PushPin, X, Play, ArrowRight, 
+  CheckCircle, Warning, Info, Lightning, Gear, Export, Import, Tag, Hash
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
@@ -22,6 +23,24 @@ import { Separator } from '@/components/ui/separator'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
+interface NomenclatureData {
+  line: string
+  product: string
+  variant: string
+  number: string
+  phase: string
+  criticality: string
+  document: string
+  application: string
+  method: string
+  reality: string
+  utcs: string
+  regulatory: string
+  version: string
+  parsed?: boolean
+  description?: string
+}
+
 interface Template {
   id: string
   name: string
@@ -32,6 +51,9 @@ interface Template {
   version: string
   criticality: 'Critical' | 'Essential' | 'Important' | 'Standard'
   lastModified: string
+  nomenclaturePattern?: string
+  compatibleRealities?: string[]
+  requiredFields?: string[]
 }
 
 interface Collaborator {
@@ -112,54 +134,82 @@ interface GeneratedDocument {
 }
 
 interface GenerationStep {
-  step: 'generating' | 'raw-review' | 'preview' | 'formatting' | 'complete'
+  step: 'parsing' | 'generating' | 'raw-review' | 'preview' | 'formatting' | 'validating' | 'complete'
   progress: number
+  message?: string
+  nomenclatureData?: NomenclatureData
 }
 
 const sampleTemplates: Template[] = [
   {
     id: '1',
     name: 'Business Strategy Plan',
-    description: 'Comprehensive business strategy documentation',
+    description: 'Comprehensive business strategy documentation for AQUA V. aerospace programs',
     phase: 'STR',
     type: 'Planning',
     docCode: 'BSP',
     version: 'v1.0.0',
     criticality: 'Critical',
-    lastModified: '2024-01-15'
+    lastModified: '2024-01-15',
+    nomenclaturePattern: 'AQUART-*-*-*-STR-*-BSP-*-*-*-*-*-*',
+    compatibleRealities: ['PHYSL', 'VRTUL'],
+    requiredFields: ['line', 'phase', 'document']
   },
   {
     id: '2',
     name: 'Software Requirements Specification',
-    description: 'Software-specific requirements template',
+    description: 'Detailed software requirements template with reality-aware specifications',
     phase: 'DES',
     type: 'Requirements',
     docCode: 'SRS',
     version: 'v1.0.0',
     criticality: 'Critical',
-    lastModified: '2024-01-10'
+    lastModified: '2024-01-10',
+    nomenclaturePattern: '*-*-*-*-DES-*-SRS-*-*-*-*-*-*',
+    compatibleRealities: ['VRTUL', 'AUGMT', 'SIMUL'],
+    requiredFields: ['line', 'product', 'phase', 'document', 'reality']
   },
   {
     id: '3',
-    name: 'Test Plan Template',
-    description: 'Comprehensive testing strategy documentation',
+    name: 'Quantum Processing Test Plan',
+    description: 'Comprehensive testing strategy for quantum processing systems',
     phase: 'TST',
     type: 'Planning',
     docCode: 'QTP',
     version: 'v1.0.0',
     criticality: 'Essential',
-    lastModified: '2024-01-12'
+    lastModified: '2024-01-12',
+    nomenclaturePattern: 'QSERVS-*-*-*-TST-*-QTP-*-*-*-*-*-*',
+    compatibleRealities: ['SIMUL', 'VRTUL', 'PHYSL'],
+    requiredFields: ['line', 'product', 'phase', 'document', 'criticality']
   },
   {
     id: '4',
-    name: 'Aircraft Maintenance Manual',
-    description: 'Complete AMM template',
+    name: 'AMPEL360 Maintenance Manual (AR)',
+    description: 'Augmented reality maintenance documentation for AMPEL360 aircraft',
     phase: 'MNT',
     type: 'Manual',
     docCode: 'AMM',
-    version: 'v1.0.0',
+    version: 'v2.1.0',
     criticality: 'Critical',
-    lastModified: '2024-01-08'
+    lastModified: '2024-01-08',
+    nomenclaturePattern: 'AMPEL3-BWB-*-*-MNT-*-AMM-*-*-AUGMT-*-*-*',
+    compatibleRealities: ['AUGMT', 'EXTND', 'HYBRD'],
+    requiredFields: ['line', 'product', 'variant', 'phase', 'document', 'reality']
+  },
+  {
+    id: '5',
+    name: 'Robotic Manufacturing Process',
+    description: 'Manufacturing process documentation for robotic assembly lines',
+    phase: 'PRD',
+    type: 'Process',
+    docCode: 'MPS',
+    version: 'v3.0.0',
+    criticality: 'Critical',
+    lastModified: '2024-01-05',
+    nomenclaturePattern: 'ROBBBO-FAL-*-*-PRD-*-MPS-*-*-HYBRD-*-*-*',
+    compatibleRealities: ['HYBRD', 'OPERT', 'SIMUL'],
+    requiredFields: ['line', 'product', 'phase', 'document', 'reality', 'method']
   }
 ]
 
@@ -194,14 +244,17 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedPhase, setSelectedPhase] = useState('all')
   const [isGenerating, setIsGenerating] = useState(false)
-  const [currentStep, setCurrentStep] = useState<GenerationStep>({ step: 'generating', progress: 0 })
+  const [currentStep, setCurrentStep] = useState<GenerationStep>({ step: 'parsing', progress: 0 })
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null)
   const [customPrompt, setCustomPrompt] = useState('')
+  const [nomenclatureInput, setNomenclatureInput] = useState('')
   const [repositoryPath, setRepositoryPath] = useState('')
   const [outputFormat, setOutputFormat] = useState<'markdown' | 'html' | 'docx'>('markdown')
   const [currentDocument, setCurrentDocument] = useState<GeneratedDocument | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [parsedNomenclature, setParsedNomenclature] = useState<NomenclatureData | null>(null)
+  const [showAdvanced, setShowAdvanced] = useState(false)
   
   // Collaboration states
   const [collaborationSession, setCollaborationSession] = useState<CollaborationSession | null>(null)
@@ -218,6 +271,74 @@ function App() {
   const [savedTemplates, setSavedTemplates] = useKV<Template[]>('custom-templates', [])
 
   const phases = ['STR', 'CON', 'DES', 'DEV', 'TST', 'INT', 'CRT', 'PRD', 'OPS', 'MNT', 'REP', 'UPG', 'EXT', 'RET', 'AUD']
+
+  // Parse AQUA V. nomenclature
+  const parseNomenclature = (nomenclature: string): NomenclatureData | null => {
+    try {
+      const parts = nomenclature.trim().split('-')
+      if (parts.length < 13) {
+        throw new Error('Invalid nomenclature format')
+      }
+
+      const parsed: NomenclatureData = {
+        line: parts[0],
+        product: parts[1], 
+        variant: parts[2],
+        number: parts[3],
+        phase: parts[4],
+        criticality: parts[5],
+        document: parts[6],
+        application: parts[7],
+        method: parts.slice(8, 12).join('-'),
+        reality: parts[12],
+        utcs: parts[13],
+        regulatory: parts[14],
+        version: parts[15] || 'v1.0.0',
+        parsed: true,
+        description: generateNomenclatureDescription(parts[0], parts[1], parts[4], parts[6])
+      }
+
+      return parsed
+    } catch (error) {
+      return null
+    }
+  }
+
+  const generateNomenclatureDescription = (line: string, product: string, phase: string, doc: string): string => {
+    const lineDescriptions: Record<string, string> = {
+      'AMPEL3': 'AMPEL360 Aircraft',
+      'GAIAIR': 'GAIA Air & Space',
+      'ROBBBO': 'ROBBBO-T Robotics',
+      'QSERVS': 'Quantum Services',
+      'QPRODS': 'Quantum Products',
+      'INFRAD': 'Digital Infrastructure',
+      'AQUART': 'Cross-Program'
+    }
+
+    const phaseDescriptions: Record<string, string> = {
+      'STR': 'Strategy',
+      'CON': 'Conceptual',
+      'DES': 'Design',
+      'DEV': 'Development',
+      'TST': 'Testing',
+      'PRD': 'Production',
+      'MNT': 'Maintenance',
+      'OPS': 'Operations'
+    }
+
+    return `${lineDescriptions[line] || line} ${phaseDescriptions[phase] || phase} ${doc} Document`
+  }
+
+  const validateNomenclaturePattern = (nomenclature: NomenclatureData, template: Template): boolean => {
+    if (!template.nomenclaturePattern) return true
+    
+    const pattern = template.nomenclaturePattern
+    const actual = `${nomenclature.line}-${nomenclature.product}-${nomenclature.variant}-${nomenclature.number}-${nomenclature.phase}-${nomenclature.criticality}-${nomenclature.document}-${nomenclature.application}-${nomenclature.method}-${nomenclature.reality}-${nomenclature.utcs}-${nomenclature.regulatory}-${nomenclature.version}`
+    
+    // Simple wildcard matching
+    const regexPattern = pattern.replace(/\*/g, '[^-]+')
+    return new RegExp(`^${regexPattern}$`).test(actual)
+  }
 
   // Simulate real-time collaboration
   useEffect(() => {
@@ -346,56 +467,108 @@ function App() {
   const handleGenerate = async (template: Template) => {
     setSelectedTemplate(template)
     setIsGenerating(true)
-    setCurrentStep({ step: 'generating', progress: 0 })
+    setCurrentStep({ step: 'parsing', progress: 0, message: 'Analyzing nomenclature...' })
     setIsDialogOpen(true)
 
     try {
-      // Step 1: Generate raw content
-      setCurrentStep({ step: 'generating', progress: 25 })
+      // Step 1: Parse nomenclature if provided
+      let nomenclatureData: NomenclatureData | null = null
+      
+      if (nomenclatureInput.trim()) {
+        setCurrentStep({ step: 'parsing', progress: 25, message: 'Parsing AQUA V. nomenclature...' })
+        await new Promise(resolve => setTimeout(resolve, 800))
+        
+        nomenclatureData = parseNomenclature(nomenclatureInput)
+        if (!nomenclatureData) {
+          throw new Error('Invalid nomenclature format. Please check the AQUA V. nomenclature structure.')
+        }
+
+        // Validate compatibility
+        if (!validateNomenclaturePattern(nomenclatureData, template)) {
+          toast.error('Nomenclature pattern does not match template requirements')
+        }
+
+        setParsedNomenclature(nomenclatureData)
+        setCurrentStep({ 
+          step: 'parsing', 
+          progress: 50, 
+          message: `Parsed: ${nomenclatureData.description}`,
+          nomenclatureData 
+        })
+      }
+
+      // Step 2: Generate content with AI
+      setCurrentStep({ step: 'generating', progress: 60, message: 'Generating document content...' })
       await new Promise(resolve => setTimeout(resolve, 1000))
 
-      const prompt = spark.llmPrompt`Generate a ${template.name} document in ${outputFormat} format based on the following template requirements:
+      const contextPrompt = nomenclatureData ? 
+        `Based on AQUA V. nomenclature: ${nomenclatureInput}
+        
+        Line: ${nomenclatureData.line} (${nomenclatureData.description})
+        Product: ${nomenclatureData.product}-${nomenclatureData.variant}
+        Phase: ${nomenclatureData.phase}
+        Document Type: ${nomenclatureData.document}
+        Reality Context: ${nomenclatureData.reality}
+        Criticality: ${nomenclatureData.criticality}
+        Regulatory: ${nomenclatureData.regulatory}
+        
+        ` : 'Standard template implementation: '
+
+      const prompt = spark.llmPrompt`Generate a comprehensive ${template.name} document in ${outputFormat} format.
+
+      ${contextPrompt}
       
-      Template: ${template.name}
-      Description: ${template.description}
-      Phase: ${template.phase || 'N/A'}
-      Document Code: ${template.docCode || 'N/A'}
-      Output Format: ${outputFormat}
+      Template Requirements:
+      - Name: ${template.name}
+      - Description: ${template.description} 
+      - Phase: ${template.phase}
+      - Document Code: ${template.docCode}
+      - Output Format: ${outputFormat}
       
-      Additional context: ${customPrompt || 'Standard implementation for AQUA V. aerospace program'}
+      Additional Context: ${customPrompt || 'Follow aerospace industry standards and best practices for technical documentation.'}
       
-      Please create a comprehensive document following industry standards and best practices. 
+      Requirements:
+      1. Create comprehensive, industry-standard documentation
+      2. Include proper section headers and structure
+      3. Add relevant technical specifications where applicable
+      4. Include compliance and regulatory considerations
+      5. Format appropriately for ${outputFormat}
+      
       ${outputFormat === 'markdown' ? 'Use proper markdown syntax with headers, lists, tables, and code blocks.' : ''}
       ${outputFormat === 'html' ? 'Generate clean, semantic HTML5 with proper structure and styling classes.' : ''}
-      ${outputFormat === 'docx' ? 'Structure the content for Word document format with proper headings and formatting.' : ''}`
+      ${outputFormat === 'docx' ? 'Structure the content for Word document format with proper headings and formatting.' : ''}
+      
+      The document should be production-ready and comprehensive.`
 
       const rawContent = await spark.llm(prompt)
       
-      setCurrentStep({ step: 'raw-review', progress: 50 })
+      setCurrentStep({ step: 'raw-review', progress: 85, message: 'Content generated successfully' })
       
       // Create the document object
       const newDocument: GeneratedDocument = {
         id: `doc-${Date.now()}`,
         templateId: template.id,
-        name: `${template.name} - Generated ${new Date().toLocaleDateString()}`,
+        name: nomenclatureData ? 
+          `${nomenclatureData.description} - ${new Date().toLocaleDateString()}` :
+          `${template.name} - Generated ${new Date().toLocaleDateString()}`,
         rawContent: rawContent,
-        renderedContent: rawContent, // Initially same as raw
+        renderedContent: rawContent,
         format: outputFormat,
         status: 'draft',
         metadata: {
-          author: 'AI Generator',
+          author: 'AQUA V. AI Generator',
           created: new Date().toISOString(),
           repository: repositoryPath || 'local://documents/',
-          version: '1.0.0',
+          version: nomenclatureData?.version || '1.0.0',
           lastModified: new Date().toISOString()
         }
       }
 
       setCurrentDocument(newDocument)
-      setCurrentStep({ step: 'raw-review', progress: 100 })
+      setCurrentStep({ step: 'raw-review', progress: 100, message: 'Ready for review' })
 
     } catch (error) {
-      toast.error('Generation failed. Please try again.')
+      toast.error(`Generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
       console.error('Generation error:', error)
       setIsGenerating(false)
       setIsDialogOpen(false)
@@ -478,19 +651,27 @@ function App() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-card">
+      <header className="border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/95">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-10 h-10 bg-primary rounded-lg">
-                <Robot size={24} className="text-primary-foreground" />
+            <div className="flex items-center gap-4">
+              <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-xl shadow-lg">
+                <Robot size={28} className="text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Processing Prompt UI</h1>
-                <p className="text-sm text-muted-foreground">AI-Powered Template Generator</p>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  Processing Prompt UI
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  AQUA V. AI-Powered Template Generator • Reality-Aware Documentation
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-muted/50 rounded-full text-xs">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span>AI Online</span>
+              </div>
               <Button variant="outline" size="sm">
                 <GitBranch size={16} className="mr-2" />
                 Version Control
@@ -498,6 +679,10 @@ function App() {
               <Button variant="outline" size="sm">
                 <FolderOpen size={16} className="mr-2" />
                 Repository
+              </Button>
+              <Button variant="outline" size="sm">
+                <Export size={16} className="mr-2" />
+                Export
               </Button>
             </div>
           </div>
@@ -551,12 +736,12 @@ function App() {
                   whileHover={{ y: -4, boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)" }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
-                  <Card className="h-full cursor-pointer hover:border-primary/50 transition-colors">
-                    <CardHeader>
+                  <Card className="h-full cursor-pointer hover:border-primary/50 transition-all duration-300 hover:shadow-lg">
+                    <CardHeader className="pb-3">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <CardTitle className="text-lg mb-2">{template.name}</CardTitle>
-                          <CardDescription className="text-sm">
+                          <CardTitle className="text-lg mb-2 line-clamp-2">{template.name}</CardTitle>
+                          <CardDescription className="text-sm line-clamp-3">
                             {template.description}
                           </CardDescription>
                         </div>
@@ -565,69 +750,237 @@ function App() {
                         </Badge>
                       </div>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="pt-0">
                       <div className="space-y-4">
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <span className="font-mono bg-muted px-2 py-1 rounded">
+                          <span className="font-mono bg-muted px-2 py-1 rounded text-xs">
                             {template.phase || 'N/A'}
                           </span>
-                          <span>{template.docCode || 'N/A'}</span>
-                          <span>{template.version || 'v1.0.0'}</span>
+                          <span className="font-mono text-xs bg-muted px-2 py-1 rounded">
+                            {template.docCode || 'N/A'}
+                          </span>
+                          <span className="text-xs">{template.version || 'v1.0.0'}</span>
                         </div>
+
+                        {/* Reality Compatibility */}
+                        {template.compatibleRealities && template.compatibleRealities.length > 0 && (
+                          <div className="space-y-2">
+                            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                              Reality Support
+                            </div>
+                            <div className="flex flex-wrap gap-1">
+                              {template.compatibleRealities.slice(0, 3).map(reality => (
+                                <Badge key={reality} variant="secondary" className="text-xs px-2 py-0.5">
+                                  {reality}
+                                </Badge>
+                              ))}
+                              {template.compatibleRealities.length > 3 && (
+                                <Badge variant="secondary" className="text-xs px-2 py-0.5">
+                                  +{template.compatibleRealities.length - 3}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Nomenclature Pattern Hint */}
+                        {template.nomenclaturePattern && (
+                          <div className="space-y-1">
+                            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                              Pattern
+                            </div>
+                            <code className="text-xs bg-muted/50 px-2 py-1 rounded block truncate">
+                              {template.nomenclaturePattern.replace(/\*/g, '•')}
+                            </code>
+                          </div>
+                        )}
                         
                         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                           <DialogTrigger asChild>
-                            <Button className="w-full" size="sm">
-                              <Download size={16} className="mr-2" />
+                            <Button 
+                              className="w-full" 
+                              size="sm"
+                              onClick={() => {
+                                setSelectedTemplate(template)
+                                setNomenclatureInput('')
+                                setParsedNomenclature(null)
+                                setCustomPrompt('')
+                                setCurrentStep({ step: 'parsing', progress: 0 })
+                              }}
+                            >
+                              <Lightning size={16} className="mr-2" />
                               Generate Template
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="max-w-4xl max-h-[90vh]">
+                          <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
                             <DialogHeader>
-                              <DialogTitle>Generate {template.name}</DialogTitle>
+                              <DialogTitle className="flex items-center gap-2">
+                                <Robot size={20} />
+                                Generate {selectedTemplate?.name || template.name}
+                                {selectedTemplate && (
+                                  <Badge variant="outline" className="ml-2">
+                                    {selectedTemplate.phase} • {selectedTemplate.criticality}
+                                  </Badge>
+                                )}
+                              </DialogTitle>
                             </DialogHeader>
                             
                             {!isGenerating ? (
-                              <div className="space-y-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div>
-                                    <Label htmlFor="format">Output Format</Label>
-                                    <Select value={outputFormat} onValueChange={(value: 'markdown' | 'html' | 'docx') => setOutputFormat(value)}>
-                                      <SelectTrigger>
-                                        <SelectValue />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="markdown">Markdown</SelectItem>
-                                        <SelectItem value="html">HTML5</SelectItem>
-                                        <SelectItem value="docx">Word Document</SelectItem>
-                                      </SelectContent>
-                                    </Select>
+                              <div className="space-y-6">
+                                {/* Nomenclature Input Section */}
+                                <div className="border rounded-lg p-4 bg-muted/50">
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <Hash size={18} className="text-primary" />
+                                    <Label className="text-base font-medium">AQUA V. Nomenclature (Optional)</Label>
+                                    <Badge variant="secondary" className="text-xs">Enhanced Context</Badge>
                                   </div>
-                                  <div>
-                                    <Label htmlFor="repository">Repository Path (optional)</Label>
+                                  <div className="space-y-3">
                                     <Input
-                                      id="repository"
-                                      placeholder="e.g., /local/templates/ or smb://server/templates/"
-                                      value={repositoryPath}
-                                      onChange={(e) => setRepositoryPath(e.target.value)}
+                                      placeholder="e.g., AMPEL3-BWB-Q100-0001-MNT-SE-AMM-TSG-TR-VF-E001-0001-AUGMT-07150000000-MUL-v2.0.0"
+                                      value={nomenclatureInput}
+                                      onChange={(e) => setNomenclatureInput(e.target.value)}
+                                      className="font-mono text-sm"
                                     />
+                                    {nomenclatureInput && (
+                                      <div className="text-sm text-muted-foreground">
+                                        <div className="flex items-center gap-1">
+                                          <Info size={14} />
+                                          <span>Will be parsed to enhance document generation with specific context</span>
+                                        </div>
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
+
+                                {/* Configuration Section */}
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                  <div className="space-y-4">
+                                    <h4 className="font-medium text-sm uppercase tracking-wider text-muted-foreground">Generation Settings</h4>
+                                    <div className="space-y-3">
+                                      <div>
+                                        <Label htmlFor="format">Output Format</Label>
+                                        <Select value={outputFormat} onValueChange={(value: 'markdown' | 'html' | 'docx') => setOutputFormat(value)}>
+                                          <SelectTrigger>
+                                            <SelectValue />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            <SelectItem value="markdown">
+                                              <div className="flex items-center gap-2">
+                                                <Code size={16} />
+                                                Markdown
+                                              </div>
+                                            </SelectItem>
+                                            <SelectItem value="html">
+                                              <div className="flex items-center gap-2">
+                                                <FileText size={16} />
+                                                HTML5
+                                              </div>
+                                            </SelectItem>
+                                            <SelectItem value="docx">
+                                              <div className="flex items-center gap-2">
+                                                <FileText size={16} />
+                                                Word Document
+                                              </div>
+                                            </SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                      </div>
+                                      <div>
+                                        <Label htmlFor="repository">Repository Path (optional)</Label>
+                                        <Input
+                                          id="repository"
+                                          placeholder="local://documents/ or smb://server/templates/"
+                                          value={repositoryPath}
+                                          onChange={(e) => setRepositoryPath(e.target.value)}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="space-y-4">
+                                    <h4 className="font-medium text-sm uppercase tracking-wider text-muted-foreground">Template Info</h4>
+                                    <div className="space-y-3 bg-muted/30 p-3 rounded-lg">
+                                      <div className="flex justify-between text-sm">
+                                        <span className="text-muted-foreground">Phase:</span>
+                                        <Badge variant="outline">{selectedTemplate?.phase || template.phase}</Badge>
+                                      </div>
+                                      <div className="flex justify-between text-sm">
+                                        <span className="text-muted-foreground">Document Code:</span>
+                                        <code className="bg-muted px-1 rounded text-xs">{selectedTemplate?.docCode || template.docCode}</code>
+                                      </div>
+                                      <div className="flex justify-between text-sm">
+                                        <span className="text-muted-foreground">Criticality:</span>
+                                        <Badge variant="outline" className={getCriticalityColor(selectedTemplate?.criticality || template.criticality)}>
+                                          {selectedTemplate?.criticality || template.criticality}
+                                        </Badge>
+                                      </div>
+                                      {(selectedTemplate?.compatibleRealities || template.compatibleRealities) && (
+                                        <div className="text-sm">
+                                          <span className="text-muted-foreground">Compatible Realities:</span>
+                                          <div className="flex flex-wrap gap-1 mt-1">
+                                            {(selectedTemplate?.compatibleRealities || template.compatibleRealities)?.map(reality => (
+                                              <Badge key={reality} variant="secondary" className="text-xs">{reality}</Badge>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Custom Prompt Section */}
                                 <div>
-                                  <Label htmlFor="prompt">Custom Prompt (optional)</Label>
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <Label htmlFor="prompt">Custom Generation Instructions</Label>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => setShowAdvanced(!showAdvanced)}
+                                    >
+                                      <Gear size={14} className="mr-1" />
+                                      {showAdvanced ? 'Basic' : 'Advanced'}
+                                    </Button>
+                                  </div>
                                   <Textarea
                                     id="prompt"
-                                    placeholder="Add specific requirements or context for this template..."
+                                    placeholder={showAdvanced ? 
+                                      "Advanced instructions: Include specific sections, technical requirements, compliance standards, or formatting preferences..." :
+                                      "Add specific requirements or context for this template..."
+                                    }
                                     value={customPrompt}
                                     onChange={(e) => setCustomPrompt(e.target.value)}
-                                    rows={4}
+                                    rows={showAdvanced ? 6 : 3}
                                   />
+                                  {showAdvanced && (
+                                    <div className="mt-2 text-xs text-muted-foreground">
+                                      <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                          <strong>Available variables:</strong>
+                                          <ul className="list-disc list-inside mt-1">
+                                            <li>{'{{nomenclature}}'} - Full nomenclature</li>
+                                            <li>{'{{phase}}'} - Document phase</li>
+                                            <li>{'{{reality}}'} - Reality context</li>
+                                          </ul>
+                                        </div>
+                                        <div>
+                                          <strong>Example instructions:</strong>
+                                          <ul className="list-disc list-inside mt-1">
+                                            <li>"Include DO-178C compliance sections"</li>
+                                            <li>"Add AR implementation details"</li>
+                                            <li>"Focus on quantum processing specs"</li>
+                                          </ul>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
+
                                 <Button 
-                                  onClick={() => handleGenerate(template)}
+                                  onClick={() => handleGenerate(selectedTemplate || template)}
                                   className="w-full"
+                                  size="lg"
                                 >
-                                  <Robot size={16} className="mr-2" />
+                                  <Lightning size={18} className="mr-2" />
                                   Generate with AI
                                 </Button>
                               </div>
@@ -636,32 +989,83 @@ function App() {
                                 {/* Progress Indicator */}
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center gap-4">
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep.step === 'generating' ? 'bg-blue-500 text-white' : currentStep.progress >= 50 ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                      currentStep.step === 'parsing' ? 'bg-blue-500 text-white animate-pulse' : 
+                                      ['generating', 'raw-review', 'preview', 'formatting', 'validating', 'complete'].includes(currentStep.step) ? 'bg-green-500 text-white' : 'bg-gray-200'
+                                    }`}>
+                                      <Hash size={16} />
+                                    </div>
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                      currentStep.step === 'generating' ? 'bg-blue-500 text-white animate-pulse' : 
+                                      ['raw-review', 'preview', 'formatting', 'validating', 'complete'].includes(currentStep.step) ? 'bg-green-500 text-white' : 'bg-gray-200'
+                                    }`}>
                                       <Robot size={16} />
                                     </div>
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep.step === 'raw-review' ? 'bg-blue-500 text-white' : currentStep.step === 'preview' || currentStep.step === 'formatting' || currentStep.step === 'complete' ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                      currentStep.step === 'raw-review' ? 'bg-blue-500 text-white animate-pulse' : 
+                                      ['preview', 'formatting', 'validating', 'complete'].includes(currentStep.step) ? 'bg-green-500 text-white' : 'bg-gray-200'
+                                    }`}>
                                       <Code size={16} />
                                     </div>
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep.step === 'preview' ? 'bg-blue-500 text-white' : currentStep.step === 'formatting' || currentStep.step === 'complete' ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                      currentStep.step === 'preview' ? 'bg-blue-500 text-white animate-pulse' : 
+                                      ['formatting', 'validating', 'complete'].includes(currentStep.step) ? 'bg-green-500 text-white' : 'bg-gray-200'
+                                    }`}>
                                       <Eye size={16} />
                                     </div>
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep.step === 'formatting' ? 'bg-blue-500 text-white' : currentStep.step === 'complete' ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
-                                      <FileText size={16} />
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                      currentStep.step === 'validating' ? 'bg-blue-500 text-white animate-pulse' : 
+                                      currentStep.step === 'complete' ? 'bg-green-500 text-white' : 'bg-gray-200'
+                                    }`}>
+                                      <CheckCircle size={16} />
                                     </div>
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep.step === 'complete' ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                      currentStep.step === 'complete' ? 'bg-green-500 text-white' : 'bg-gray-200'
+                                    }`}>
                                       <Share size={16} />
                                     </div>
                                   </div>
-                                  <div className="text-sm text-muted-foreground">
-                                    {currentStep.step === 'generating' && 'Generating content...'}
-                                    {currentStep.step === 'raw-review' && 'Review raw code'}
-                                    {currentStep.step === 'preview' && 'Preview rendering'}
-                                    {currentStep.step === 'formatting' && 'Formatting...'}
-                                    {currentStep.step === 'complete' && 'Ready to publish'}
+                                  <div className="text-right">
+                                    <div className="text-sm font-medium">
+                                      {currentStep.step === 'parsing' && 'Parsing Nomenclature'}
+                                      {currentStep.step === 'generating' && 'Generating Content'}
+                                      {currentStep.step === 'raw-review' && 'Review Raw Code'}
+                                      {currentStep.step === 'preview' && 'Preview Rendering'}
+                                      {currentStep.step === 'formatting' && 'Formatting Document'}
+                                      {currentStep.step === 'validating' && 'Validating Output'}
+                                      {currentStep.step === 'complete' && 'Ready to Publish'}
+                                    </div>
+                                    {currentStep.message && (
+                                      <div className="text-xs text-muted-foreground">{currentStep.message}</div>
+                                    )}
                                   </div>
                                 </div>
 
                                 <Progress value={currentStep.progress} className="w-full" />
+
+                                {/* Nomenclature Analysis */}
+                                {currentStep.nomenclatureData && (
+                                  <div className="bg-muted/50 border rounded-lg p-4 space-y-2">
+                                    <div className="flex items-center gap-2 text-sm font-medium text-primary">
+                                      <CheckCircle size={16} />
+                                      Nomenclature Analysis Complete
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4 text-xs">
+                                      <div>
+                                        <span className="text-muted-foreground">Line:</span> {currentStep.nomenclatureData.line}
+                                      </div>
+                                      <div>
+                                        <span className="text-muted-foreground">Product:</span> {currentStep.nomenclatureData.product}-{currentStep.nomenclatureData.variant}
+                                      </div>
+                                      <div>
+                                        <span className="text-muted-foreground">Phase:</span> {currentStep.nomenclatureData.phase}
+                                      </div>
+                                      <div>
+                                        <span className="text-muted-foreground">Reality:</span> {currentStep.nomenclatureData.reality}
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
 
                                 {currentStep.step === 'raw-review' && currentDocument && (
                                   <div className="space-y-4">

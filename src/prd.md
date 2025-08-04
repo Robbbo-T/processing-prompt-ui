@@ -1,109 +1,171 @@
-# Processing Prompt UI - Enhanced Workflow System
+# Processing Prompt UI - Product Requirements Document
 
 ## Core Purpose & Success
 
-**Mission Statement**: Create an AI-powered template generation interface that allows users to generate, review, preview, and publish documentation templates with complete workflow control and format flexibility.
+**Mission Statement**: Create an AI-powered template generation interface that transforms AQUA V. nomenclature codes into comprehensive, multi-format documentation with real-time collaboration and reality-aware compilation.
 
-**Success Indicators**: 
-- Users can seamlessly move through generation → raw review → preview → formatting → publishing workflow
-- Support for multiple output formats (Markdown, HTML5, Word)
-- Raw code visibility and editing capabilities
-- Professional preview rendering with side-by-side comparison
-- Successful repository integration for local and network storage
+**Success Indicators**:
+- Seamless integration with AQUA V. nomenclature system
+- Multi-format document generation (Markdown, HTML5, Word)
+- Real-time collaborative editing with live cursors and comments
+- Repository management with version control
+- Template library with smart categorization
 
-**Experience Qualities**: Professional, Transparent, Controllable
+**Experience Qualities**: Professional, Intelligent, Collaborative
 
 ## Project Classification & Approach
 
-**Complexity Level**: Light Application (multiple features with workflow state management)
+**Complexity Level**: Complex Application (advanced functionality with AI integration, real-time collaboration, multi-format output)
 
-**Primary User Activity**: Creating and Acting (generating documents with review workflow)
+**Primary User Activity**: Creating - Users actively generate, edit, and collaborate on technical documentation
 
-## Thought Process for Feature Selection
+## Core Problem Analysis
 
-**Core Problem Analysis**: Users need visibility and control over AI-generated content before final publication, with the ability to see raw code, preview rendering, and make informed decisions about format and publication.
+**Specific Problem**: Technical teams need to rapidly generate standardized documentation from nomenclature codes while maintaining consistency, enabling collaboration, and supporting multiple output formats for different reality contexts (virtual, augmented, physical).
 
-**User Context**: Technical and semi-technical users working with aerospace documentation who need confidence in AI-generated content through transparent review processes.
+**User Context**: Technical writers, engineers, and documentation teams working on aerospace and quantum systems who need to transform structured nomenclature into comprehensive documentation templates.
 
-**Critical Path**: Template selection → Configuration → AI generation → Raw code review → Preview rendering → Format preparation → Publication
+**Critical Path**: 
+1. Template selection/import → 2. AI-powered generation → 3. Raw content review → 4. Live preview → 5. Collaborative editing → 6. Format & publish
 
-**Key Moments**: 
-1. Raw code review stage where users can inspect and copy generated content
-2. Preview comparison between raw code and rendered output
-3. Final publication decision with repository selection
+**Key Moments**:
+- Template generation with custom prompts
+- Real-time collaborative editing experience  
+- Multi-format preview and validation
 
 ## Essential Features
 
-### Multi-Step Generation Workflow
-- **What it does**: Provides a 5-step process (Generate → Raw Review → Preview → Format → Publish) with visual progress indication
-- **Why it matters**: Gives users complete control and transparency over the generation process
-- **Success criteria**: Users can navigate forward/backward through steps, cancel at any point, and see clear progress indicators
+### AI-Powered Template Generation
+- **Functionality**: Generate comprehensive documents from AQUA nomenclature using LLM integration
+- **Purpose**: Transform structured codes into readable, standards-compliant documentation
+- **Success Criteria**: 95% accuracy in nomenclature parsing, contextually appropriate content generation
 
-### Raw Code Inspection
-- **What it does**: Displays generated content in raw format (Markdown/HTML/Word) with syntax highlighting and copy functionality
-- **Why it matters**: Allows technical users to verify, inspect, and potentially modify generated content
-- **Success criteria**: Raw content is readable, copyable, and accurately reflects what will be processed
+### Real-time Collaborative Editing
+- **Functionality**: Multi-user editing with live cursors, comments, and change tracking
+- **Purpose**: Enable distributed teams to collaborate efficiently on documentation
+- **Success Criteria**: Sub-100ms cursor updates, conflict-free collaborative editing
 
-### Live Preview Rendering
-- **What it does**: Shows side-by-side comparison of raw code and rendered output with tab switching
-- **Why it matters**: Users can confirm rendering matches expectations before publication
-- **Success criteria**: Preview accurately represents final output, tabs work smoothly, content is scrollable
+### Multi-Format Output Pipeline
+- **Functionality**: Generate Markdown, HTML5, and Word documents with format-specific optimizations
+- **Purpose**: Support different downstream systems and presentation needs
+- **Success Criteria**: Format-perfect output, preserved styling and structure
 
-### Format Selection
-- **What it does**: Allows users to choose between Markdown, HTML5, and Word document formats before generation
-- **Why it matters**: Different formats serve different use cases and publishing requirements
-- **Success criteria**: Format selection affects both generation prompts and preview rendering
+### Template Library Management
+- **Functionality**: Organize, search, and manage reusable templates by phase and criticality
+- **Purpose**: Accelerate documentation workflows through standardization
+- **Success Criteria**: <2 second template loading, intelligent categorization
 
 ### Repository Integration
-- **What it does**: Supports both local and network repository paths for document storage
-- **Why it matters**: Integration with existing file systems and version control workflows
-- **Success criteria**: Documents save to specified locations with proper naming and metadata
+- **Functionality**: Save to local and network repositories with version control
+- **Purpose**: Maintain document history and enable enterprise integration
+- **Success Criteria**: Reliable saves to multiple repository types, proper versioning
 
 ## Design Direction
 
 ### Visual Tone & Identity
-**Emotional Response**: Professional confidence with transparency and control
-**Design Personality**: Clean, technical, trustworthy - like a sophisticated development environment
-**Visual Metaphors**: Code editor aesthetics, development workflow indicators, professional documentation tools
-**Simplicity Spectrum**: Rich interface that provides necessary technical detail without overwhelming
+**Emotional Response**: Users should feel confident, efficient, and in control when generating complex technical documentation.
+
+**Design Personality**: Professional and sophisticated, like advanced aerospace software - clean, precise, with subtle high-tech elements that reinforce the advanced AI capabilities.
+
+**Visual Metaphors**: Industrial design language inspired by aerospace interfaces, with subtle gradients and glassmorphic elements suggesting advanced AI processing.
+
+**Simplicity Spectrum**: Rich interface with progressive disclosure - powerful capabilities available when needed without overwhelming basic workflows.
 
 ### Color Strategy
-**Color Scheme Type**: Analogous with technical accent colors
-**Primary Color**: Deep blue (oklch(0.45 0.15 240)) - professional and trustworthy
-**Secondary Colors**: Light blues and grays for backgrounds and supporting elements
-**Accent Color**: Warm yellow/orange (oklch(0.7 0.18 50)) for highlights and active states
-**Color Psychology**: Blue conveys trust and professionalism, yellow provides energy for interactive elements
-**Status Colors**: Green for success/completion, orange for in-progress, red for critical actions
+**Color Scheme Type**: Analogous with accent complementary
+**Primary Color**: Deep aerospace blue (oklch(0.45 0.15 240)) - communicates reliability and technical precision
+**Secondary Colors**: Subtle blue-grays for supporting UI elements
+**Accent Color**: Vibrant cyan (oklch(0.7 0.18 200)) - for AI processing indicators and active states
+**Color Psychology**: Blues convey trust and technical competence, cyan suggests innovation and AI intelligence
+
+**Color Accessibility**: All text combinations exceed WCAG AA standards (4.5:1 contrast ratio)
+
+**Foreground/Background Pairings**:
+- Primary text on background: oklch(0.2 0.02 240) on oklch(0.98 0.02 240) - 18.5:1 contrast
+- Button text on primary: oklch(0.98 0.02 240) on oklch(0.45 0.15 240) - 9.2:1 contrast
+- Secondary text on card: oklch(0.5 0.02 240) on oklch(1 0 0) - 8.1:1 contrast
 
 ### Typography System
-**Font Pairing Strategy**: Inter for UI text, JetBrains Mono for code display
-**Typographic Hierarchy**: Clear distinction between headings, body text, and code
-**Font Personality**: Inter is clean and professional, JetBrains Mono provides technical credibility
-**Typography Consistency**: Consistent sizing scale with proper contrast ratios
+**Font Pairing Strategy**: Inter for UI text (clean, technical) paired with JetBrains Mono for code/nomenclature display
+
+**Typographic Hierarchy**: 
+- Headers: 24px/28px bold Inter
+- Body: 14px/20px regular Inter  
+- Code: 13px/18px JetBrains Mono
+- Labels: 12px/16px medium Inter, uppercase with letter-spacing
+
+**Font Personality**: Inter conveys modern technical precision, JetBrains Mono ensures nomenclature codes are highly legible
+
+**Which fonts**: Inter (400, 500, 600, 700 weights) and JetBrains Mono (400, 500 weights) from Google Fonts
+
+**Legibility Check**: Both fonts tested at small sizes, high contrast maintained throughout
 
 ### Visual Hierarchy & Layout
-**Attention Direction**: Visual workflow indicators guide users through the process
-**White Space Philosophy**: Generous spacing around critical decision points and code blocks
-**Grid System**: Card-based layout with consistent spacing using Tailwind's spacing scale
-**Content Density**: Balance between information richness and visual clarity, with expandable details
+**Attention Direction**: Progressive left-to-right flow: template selection → generation controls → output preview → collaboration tools
 
-### Animations
-**Purposeful Meaning**: Smooth transitions between workflow steps communicate progress
-**Hierarchy of Movement**: Subtle hover effects on interactive elements, progress animations for generation
-**Contextual Appropriateness**: Professional, subtle animations that enhance rather than distract
+**White Space Philosophy**: Generous spacing creates calm, professional feel while grouping related functionality clearly
+
+**Grid System**: 24px base unit grid with responsive breakpoints at 768px and 1200px
+
+**Content Density**: Balanced - enough information visible without overwhelming, with expandable detail views
+
+### Animations & Motion
+**Purposeful Meaning**: Subtle animations reinforce AI processing and collaborative awareness
+- Loading states show AI thinking
+- Cursor movements indicate collaboration
+- Smooth transitions maintain spatial relationships
+
+**Hierarchy of Movement**: 
+1. Critical AI processing indicators (pulse, progress)
+2. Collaborative presence (cursor movements, typing indicators)  
+3. UI transitions (tab switches, modal appearances)
 
 ### UI Elements & Component Selection
-**Component Usage**: Dialog for generation workflow, Tabs for preview switching, Progress for status indication
-**Component States**: Clear visual feedback for all interactive elements across different states
-**Icon Selection**: Phosphor icons for technical actions (Robot, Code, Eye, FileText, Share)
-**Spacing System**: Consistent use of Tailwind's spacing scale with generous padding for readability
+**Component Usage**:
+- Tabs for template library organization
+- Dialog modals for generation workflow
+- Cards for template and document display
+- Progress indicators for AI generation steps
+- Avatar groups for collaboration presence
+
+**Spacing System**: 4px base unit (4, 8, 12, 16, 20, 24, 32, 40px scale)
+
+**Mobile Adaptation**: Responsive grid collapses to single column, collaborative editing switches to tabbed interface
+
+### Accessibility & Readability
+**Contrast Goal**: WCAG AA compliance minimum, targeting AAA where possible
+- All text meets 4.5:1 contrast ratio
+- Interactive elements have 3:1 minimum
+- Focus indicators are clearly visible
+- Screen reader friendly markup structure
+
+## Edge Cases & Problem Scenarios
+
+**Potential Obstacles**:
+- Large document generation timeouts
+- Collaborative editing conflicts
+- Repository connection failures
+- Invalid nomenclature formats
+
+**Edge Case Handling**:
+- Progressive generation with cancellation options
+- Operational transforms for conflict resolution  
+- Graceful degradation to local storage
+- Smart validation with helpful error messages
 
 ## Implementation Considerations
 
-**Scalability Needs**: Support for additional output formats, integration with version control systems
-**Testing Focus**: Workflow state management, preview rendering accuracy, repository integration
-**Critical Questions**: How accurate is preview rendering across formats? Can users easily understand workflow progress?
+**Scalability Needs**: Support for 10+ simultaneous collaborators, documents up to 1MB, template libraries with 100+ items
+
+**Testing Focus**: AI generation accuracy, collaborative conflict resolution, cross-format output fidelity
+
+**Critical Questions**: 
+- How to handle LLM generation failures gracefully?
+- What's the optimal auto-save frequency for collaboration?
+- How to maintain format fidelity across all output types?
 
 ## Reflection
 
-This approach uniquely serves technical users who need confidence in AI-generated content through transparency and control. The workflow-based approach with raw code visibility addresses the trust gap that often exists with AI-generated content, particularly in professional documentation contexts.
+This approach uniquely combines structured nomenclature systems with AI-powered content generation and real-time collaboration. The focus on multi-format output and reality-aware compilation makes it specifically suited for complex aerospace documentation workflows where precision and collaboration are paramount.
+
+The design emphasizes professional competence while making advanced AI capabilities approachable through progressive disclosure and clear visual feedback.
