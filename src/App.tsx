@@ -8,7 +8,7 @@ import {
   HelpCircle, BookOpen, Compass, Airplane, House, Rocket, Brain, Globe, Target, Database, Shield,
   TreeStructure, FlowArrow, Cube, ChartLine, ListBullets, CalendarCheck, NotePencil, Microscope,
   ChatCentered, Timer, CircleWavy, GraphicsCard, ChartPieSlice, MagnifyingGlass, Palette, Archive,
-  Desktop, CubeFocus, Monitor, ThreeDee, Shapes, GridFour, SquaresFour
+  Desktop, CubeFocus, Monitor, ThreeDee, Shapes, GridFour, SquaresFour, Cpu, Zap
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
@@ -26,6 +26,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import UTCSValidator from '@/components/UTCSValidator'
 
 interface NomenclatureData {
   line: string
@@ -246,7 +247,20 @@ interface GenerationStep {
   nomenclatureData?: NomenclatureData
 }
 
-const sampleDocumentationSections: DocumentationSection[] = [
+  const sampleDocumentationSections: DocumentationSection[] = [
+  {
+    id: 'utcs-standard',
+    title: 'UTCS-Optimized Identification Standard',
+    description: 'AMPEL360 Universal Technology Classification System for unified artifact identification',
+    icon: Hash,
+    category: 'compliance',
+    status: 'published',
+    lastModified: new Date().toISOString(),
+    author: 'AMPEL360 CRB',
+    wordCount: 8500,
+    readTime: 34,
+    tags: ['UTCS', 'identification', 'standard', 'CRB', 'nomenclature']
+  },
   {
     id: 'automation-1',
     title: 'Software Automation Framework',
@@ -287,12 +301,13 @@ const sampleDocumentationSections: DocumentationSection[] = [
         tags: ['deployment', 'blue-green', 'canary']
       }
     ]
+  },
   {
-  {
+    id: 'compliance-1',
     title: 'DO-178C Compliance Matrix',
     description: 'Software considerations in airborne systems and equipment certification',
     icon: Shield,
-    icon: Shield,
+    category: 'compliance',
     status: 'approved',
     lastModified: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
     author: 'Jennifer Walsh',
@@ -315,14 +330,14 @@ const sampleDocumentationSections: DocumentationSection[] = [
       }
     ]
   },
-  },
-  {: '3d-modeling-1',
+  {
+    id: '3d-modeling-1',
     title: 'BWB-Q100 3D Model Integration',
     description: 'Interactive 3D documentation with WebGPU rendering and real-time annotations',
     icon: Cube,
     category: '3d-modeling',
     status: 'draft',
-    status: 'draft', * 60 * 60 * 1000).toISOString(),
+    lastModified: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
     author: 'Maria Santos',
     wordCount: 1800,
     readTime: 7,
@@ -356,9 +371,9 @@ const sampleDocumentationSections: DocumentationSection[] = [
       }
     ]
   },
-  },
   {
     id: 'collaboration-1',
+    title: 'Real-time Collaboration System',
     description: 'Multi-user editing framework with conflict resolution and approval workflows',
     icon: Users,
     category: 'collaboration',
@@ -369,7 +384,7 @@ const sampleDocumentationSections: DocumentationSection[] = [
     readTime: 11,
     tags: ['collaboration', 'real-time', 'editing', 'workflow']
   },
-  },
+  {
     id: 'ai-powered-1',
     title: 'AI Content Refinement Engine',
     description: 'Intelligent content analysis, suggestions, and automated quality improvements',
@@ -395,12 +410,12 @@ const sampleComplianceRequirements: ComplianceRequirement[] = [
     lastVerified: new Date().toISOString(),
     riskLevel: 'medium'
   },
-  },
   {
     id: 'do178c-2',
+    standard: 'DO-178C',
     section: '6.3.1',
     requirement: 'Source code shall be reviewed',
-    requirement: 'Source code shall be reviewed',
+    status: 'non-compliant',
     evidence: ['code-review-template.md'],
     lastVerified: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
     riskLevel: 'high'
@@ -415,9 +430,9 @@ const sampleComplianceRequirements: ComplianceRequirement[] = [
     lastVerified: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
     riskLevel: 'low'
   }
-  }
 ]
 
+const sampleAIRefinements: AIRefinement[] = [
   {
     id: 'ref-1',
     documentId: 'automation-1',
@@ -456,7 +471,8 @@ const sampleComplianceRequirements: ComplianceRequirement[] = [
   }
 ]
 
-const sampleRepositories: Repository[] = [
+const sampleTemplates: Template[] = []
+
 const sampleRepositories: Repository[] = [
   {
     id: 'repo-1',
@@ -742,7 +758,6 @@ function App() {
   const [selectedFiles, setSelectedFiles] = useState<string[]>([])
 
   // New documentation platform states
-  // New documentation platform states
   const [documentationSections] = useKV<DocumentationSection[]>('documentation-sections', sampleDocumentationSections)
   const [complianceRequirements] = useKV<ComplianceRequirement[]>('compliance-requirements', sampleComplianceRequirements)
   const [aiRefinements] = useKV<AIRefinement[]>('ai-refinements', sampleAIRefinements)
@@ -754,6 +769,9 @@ function App() {
   const [refinementFilter, setRefinementFilter] = useState<'all' | 'pending' | 'accepted' | 'rejected'>('all')
 
   const [savedTemplates, setSavedTemplates] = useKV<Template[]>('custom-templates', [])
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [generatedDocuments, setGeneratedDocuments] = useKV<GeneratedDocument[]>('generated-documents', [])
+  const [selectedPhase, setSelectedPhase] = useState('all')
 
   const phases = ['STR', 'CON', 'DES', 'DEV', 'TST', 'INT', 'CRT', 'PRD', 'OPS', 'MNT', 'REP', 'UPG', 'EXT', 'RET', 'AUD']
   const categories = ['automation', 'compliance', '3d-modeling', 'collaboration', 'ai-powered']
@@ -1002,7 +1020,7 @@ Focus on aerospace documentation standards, DO-178C compliance, and technical wr
     if (!template.nomenclaturePattern) return true
     
     
-    const pattern = template.nomenclaturePatternclature.product}-${nomenclature.variant}-${nomenclature.number}-${nomenclature.phase}-${nomenclature.criticality}-${nomenclature.document}-${nomenclature.application}-${nomenclature.method}-${nomenclature.reality}-${nomenclature.utcs}-${nomenclature.regulatory}-${nomenclature.version}`
+    const pattern = template.nomenclaturePattern
     const actual = `${nomenclature.line}-${nomenclature.product}-${nomenclature.variant}-${nomenclature.number}-${nomenclature.phase}-${nomenclature.criticality}-${nomenclature.document}-${nomenclature.application}-${nomenclature.method}-${nomenclature.reality}-${nomenclature.utcs}-${nomenclature.regulatory}-${nomenclature.version}`
     
     // Simple wildcard matching
@@ -1011,7 +1029,7 @@ Focus on aerospace documentation standards, DO-178C compliance, and technical wr
   }
 
   // Simulate real-time collaboration
-  useEffect(() => { && isEditingMode) {
+  useEffect(() => {
     if (collaborativeDocument && isEditingMode) {
       const interval = setInterval(() => {
         // Simulate cursor positions and selections from other users
@@ -1021,44 +1039,43 @@ Focus on aerospace documentation standards, DO-178C compliance, and technical wr
             line: Math.floor(Math.random() * 20) + 1,
             character: Math.floor(Math.random() * 80)
           }
-        })))0)
+        })))
       }, 3000)
-return () => clearInterval(interval)
       return () => clearInterval(interval)
     }
   }, [collaborativeDocument, isEditingMode])
-ing = (document: GeneratedDocument) => {
+
   const startCollaborativeEditing = (document: GeneratedDocument) => {
     setCollaborativeDocument(document)
     setEditContent(document.rawContent)
     setIsEditingMode(true)
-    sion
+    
     // Create collaboration session
     const session: CollaborationSession = {
       id: `session-${Date.now()}`,
-      documentId: document.id,rators, {
+      documentId: document.id,
       participants: [...activeCollaborators, {
         id: 'current-user',
-        name: 'You',=You',
+        name: 'You',
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=You',
         email: 'you@aqua-v.com',
-        status: 'online',()
+        status: 'online',
         lastSeen: new Date().toISOString()
-      }],ers: ['current-user', ...activeCollaborators.map(c => c.id)],
+      }],
       activeUsers: ['current-user', ...activeCollaborators.map(c => c.id)],
-      startTime: new Date().toISOString(),()
+      startTime: new Date().toISOString(),
       lastActivity: new Date().toISOString()
     }
-    (session)
+    
     setCollaborationSession(session)
     toast.success('Collaborative editing started')
   }
- {
+  
   const saveCollaborativeChanges = () => {
     if (collaborativeDocument && editContent) {
       const updatedDocument: GeneratedDocument = {
         ...collaborativeDocument,
-        rawContent: editContent,tent,
+        rawContent: editContent,
         renderedContent: editContent,
         metadata: {
           ...collaborativeDocument.metadata,
@@ -1071,16 +1088,16 @@ ing = (document: GeneratedDocument) => {
           isLocked: false
         }
       }
-uments(current => 
-      setGeneratedDocuments(current => c)
+      
+      setGeneratedDocuments(current => 
         current.map(doc => doc.id === collaborativeDocument.id ? updatedDocument : doc)
       )
       
       setCollaborativeDocument(updatedDocument)
       toast.success('Changes saved successfully')
+    }
+  }
 
-  const addComment = () => {
-    if (!newComment.trim() || !collaborativeDocument) return
   const addComment = () => {
     if (!newComment.trim() || !collaborativeDocument) return
 
@@ -1088,7 +1105,7 @@ uments(current =>
       id: `comment-${Date.now()}`,
       author: {
         id: 'current-user',
-        name: 'You',-v.com',
+        name: 'You',
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=You',
         email: 'you@aqua-v.com',
         status: 'online',
@@ -1097,6 +1114,8 @@ uments(current =>
       content: newComment,
       timestamp: new Date().toISOString(),
       resolved: false,
+      replies: []
+    }
 
     setComments(current => [...current, comment])
     setNewComment('')
@@ -1777,9 +1796,10 @@ uments(current =>
               </div>
 
               <Tabs defaultValue="overview" className="space-y-6">
-                <TabsList className="grid w-full grid-cols-6">
+                <TabsList className="grid w-full grid-cols-7">
                   <TabsTrigger value="overview">Overview</TabsTrigger>
                   <TabsTrigger value="documentation">Documentation</TabsTrigger>
+                  <TabsTrigger value="utcs">UTCS Standard</TabsTrigger>
                   <TabsTrigger value="compliance">Compliance</TabsTrigger>
                   <TabsTrigger value="ai-refinements">AI Refinements</TabsTrigger>
                   <TabsTrigger value="3d-models">3D Models</TabsTrigger>
@@ -1882,6 +1902,16 @@ uments(current =>
                       </div>
                     </CardContent>
                   </Card>
+                </TabsContent>
+
+                <TabsContent value="utcs" className="space-y-6">
+                  <UTCSValidator 
+                    showBrowser={true}
+                    onValidCode={(code, parsed) => {
+                      console.log('Valid UTCS code generated:', { code, parsed })
+                      toast.success(`Valid UTCS code: ${code}`)
+                    }}
+                  />
                 </TabsContent>
 
                 <TabsContent value="documentation" className="space-y-6">
