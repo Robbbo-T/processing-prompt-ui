@@ -287,13 +287,12 @@ const sampleDocumentationSections: DocumentationSection[] = [
         tags: ['deployment', 'blue-green', 'canary']
       }
     ]
-  },
   {
-    id: 'compliance-1',
+  {
     title: 'DO-178C Compliance Matrix',
     description: 'Software considerations in airborne systems and equipment certification',
     icon: Shield,
-    category: 'compliance',
+    icon: Shield,
     status: 'approved',
     lastModified: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
     author: 'Jennifer Walsh',
@@ -316,14 +315,14 @@ const sampleDocumentationSections: DocumentationSection[] = [
       }
     ]
   },
-  {
-    id: '3d-modeling-1',
+  },
+  {: '3d-modeling-1',
     title: 'BWB-Q100 3D Model Integration',
     description: 'Interactive 3D documentation with WebGPU rendering and real-time annotations',
     icon: Cube,
     category: '3d-modeling',
     status: 'draft',
-    lastModified: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    status: 'draft', * 60 * 60 * 1000).toISOString(),
     author: 'Maria Santos',
     wordCount: 1800,
     readTime: 7,
@@ -357,9 +356,9 @@ const sampleDocumentationSections: DocumentationSection[] = [
       }
     ]
   },
+  },
   {
     id: 'collaboration-1',
-    title: 'Real-time Collaborative Editing',
     description: 'Multi-user editing framework with conflict resolution and approval workflows',
     icon: Users,
     category: 'collaboration',
@@ -370,7 +369,7 @@ const sampleDocumentationSections: DocumentationSection[] = [
     readTime: 11,
     tags: ['collaboration', 'real-time', 'editing', 'workflow']
   },
-  {
+  },
     id: 'ai-powered-1',
     title: 'AI Content Refinement Engine',
     description: 'Intelligent content analysis, suggestions, and automated quality improvements',
@@ -396,12 +395,12 @@ const sampleComplianceRequirements: ComplianceRequirement[] = [
     lastVerified: new Date().toISOString(),
     riskLevel: 'medium'
   },
+  },
   {
     id: 'do178c-2',
-    standard: 'DO-178C',
     section: '6.3.1',
     requirement: 'Source code shall be reviewed',
-    status: 'partial',
+    requirement: 'Source code shall be reviewed',
     evidence: ['code-review-template.md'],
     lastVerified: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
     riskLevel: 'high'
@@ -416,9 +415,9 @@ const sampleComplianceRequirements: ComplianceRequirement[] = [
     lastVerified: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
     riskLevel: 'low'
   }
+  }
 ]
 
-const sampleAIRefinements: AIRefinement[] = [
   {
     id: 'ref-1',
     documentId: 'automation-1',
@@ -457,6 +456,7 @@ const sampleAIRefinements: AIRefinement[] = [
   }
 ]
 
+const sampleRepositories: Repository[] = [
 const sampleRepositories: Repository[] = [
   {
     id: 'repo-1',
@@ -595,7 +595,6 @@ const nomenclatureQuizSteps: QuizStep[] = [
     question: 'What is the sequential number for this item?',
     type: 'input',
     validation: /^[\d]{4,8}$/,
-    helpText: 'Enter a 4-8 digit sequential number (e.g., 0001, 12345678).',
     required: true
   },
   {
@@ -699,7 +698,7 @@ const sampleCollaborators: Collaborator[] = [
 function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
-  const [isGenerating, setIsGenerating] = useState(false)
+  const [selectedCategory, setSelectedCategory] = useState('all')
   const [currentStep, setCurrentStep] = useState<GenerationStep>({ step: 'parsing', progress: 0 })
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null)
   const [customPrompt, setCustomPrompt] = useState('')
@@ -743,6 +742,7 @@ function App() {
   const [selectedFiles, setSelectedFiles] = useState<string[]>([])
 
   // New documentation platform states
+  // New documentation platform states
   const [documentationSections] = useKV<DocumentationSection[]>('documentation-sections', sampleDocumentationSections)
   const [complianceRequirements] = useKV<ComplianceRequirement[]>('compliance-requirements', sampleComplianceRequirements)
   const [aiRefinements] = useKV<AIRefinement[]>('ai-refinements', sampleAIRefinements)
@@ -753,10 +753,10 @@ function App() {
   const [showAIPanel, setShowAIPanel] = useState(false)
   const [refinementFilter, setRefinementFilter] = useState<'all' | 'pending' | 'accepted' | 'rejected'>('all')
 
-  const [generatedDocuments, setGeneratedDocuments] = useKV<GeneratedDocument[]>('generated-documents', [])
   const [savedTemplates, setSavedTemplates] = useKV<Template[]>('custom-templates', [])
 
   const phases = ['STR', 'CON', 'DES', 'DEV', 'TST', 'INT', 'CRT', 'PRD', 'OPS', 'MNT', 'REP', 'UPG', 'EXT', 'RET', 'AUD']
+  const categories = ['automation', 'compliance', '3d-modeling', 'collaboration', 'ai-powered']
   const categories = ['automation', 'compliance', '3d-modeling', 'collaboration', 'ai-powered']
 
   // AI Content Analysis function
@@ -853,7 +853,6 @@ Focus on aerospace documentation standards, DO-178C compliance, and technical wr
     return refinement.status === refinementFilter
   })
 
-  // Quiz functions
   const startQuiz = () => {
     setQuizState({
       currentStep: 0,
@@ -943,7 +942,7 @@ Focus on aerospace documentation standards, DO-178C compliance, and technical wr
   }
 
   // Parse AQUA V. nomenclature
-  const parseNomenclature = (nomenclature: string): NomenclatureData | null => {
+  // Parse AQUA V. nomenclature
     try {
       const parts = nomenclature.trim().split('-')
       if (parts.length < 13) {
@@ -987,6 +986,7 @@ Focus on aerospace documentation standards, DO-178C compliance, and technical wr
 
     const phaseDescriptions: Record<string, string> = {
       'STR': 'Strategy',
+      'STR': 'Strategy',
       'CON': 'Conceptual',
       'DES': 'Design',
       'DEV': 'Development',
@@ -997,12 +997,12 @@ Focus on aerospace documentation standards, DO-178C compliance, and technical wr
     }
 
     return `${lineDescriptions[line] || line} ${phaseDescriptions[phase] || phase} ${doc} Document`
-  }
 
   const validateNomenclaturePattern = (nomenclature: NomenclatureData, template: Template): boolean => {
     if (!template.nomenclaturePattern) return true
     
-    const pattern = template.nomenclaturePattern
+    
+    const pattern = template.nomenclaturePatternclature.product}-${nomenclature.variant}-${nomenclature.number}-${nomenclature.phase}-${nomenclature.criticality}-${nomenclature.document}-${nomenclature.application}-${nomenclature.method}-${nomenclature.reality}-${nomenclature.utcs}-${nomenclature.regulatory}-${nomenclature.version}`
     const actual = `${nomenclature.line}-${nomenclature.product}-${nomenclature.variant}-${nomenclature.number}-${nomenclature.phase}-${nomenclature.criticality}-${nomenclature.document}-${nomenclature.application}-${nomenclature.method}-${nomenclature.reality}-${nomenclature.utcs}-${nomenclature.regulatory}-${nomenclature.version}`
     
     // Simple wildcard matching
@@ -1011,7 +1011,7 @@ Focus on aerospace documentation standards, DO-178C compliance, and technical wr
   }
 
   // Simulate real-time collaboration
-  useEffect(() => {
+  useEffect(() => { && isEditingMode) {
     if (collaborativeDocument && isEditingMode) {
       const interval = setInterval(() => {
         // Simulate cursor positions and selections from other users
@@ -1021,44 +1021,44 @@ Focus on aerospace documentation standards, DO-178C compliance, and technical wr
             line: Math.floor(Math.random() * 20) + 1,
             character: Math.floor(Math.random() * 80)
           }
-        })))
+        })))0)
       }, 3000)
-
+return () => clearInterval(interval)
       return () => clearInterval(interval)
     }
   }, [collaborativeDocument, isEditingMode])
-
+ing = (document: GeneratedDocument) => {
   const startCollaborativeEditing = (document: GeneratedDocument) => {
     setCollaborativeDocument(document)
     setEditContent(document.rawContent)
     setIsEditingMode(true)
-    
+    sion
     // Create collaboration session
     const session: CollaborationSession = {
       id: `session-${Date.now()}`,
-      documentId: document.id,
+      documentId: document.id,rators, {
       participants: [...activeCollaborators, {
         id: 'current-user',
-        name: 'You',
+        name: 'You',=You',
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=You',
         email: 'you@aqua-v.com',
-        status: 'online',
+        status: 'online',()
         lastSeen: new Date().toISOString()
-      }],
+      }],ers: ['current-user', ...activeCollaborators.map(c => c.id)],
       activeUsers: ['current-user', ...activeCollaborators.map(c => c.id)],
-      startTime: new Date().toISOString(),
+      startTime: new Date().toISOString(),()
       lastActivity: new Date().toISOString()
     }
-    
+    (session)
     setCollaborationSession(session)
     toast.success('Collaborative editing started')
   }
-
+ {
   const saveCollaborativeChanges = () => {
     if (collaborativeDocument && editContent) {
       const updatedDocument: GeneratedDocument = {
         ...collaborativeDocument,
-        rawContent: editContent,
+        rawContent: editContent,tent,
         renderedContent: editContent,
         metadata: {
           ...collaborativeDocument.metadata,
@@ -1071,16 +1071,16 @@ Focus on aerospace documentation standards, DO-178C compliance, and technical wr
           isLocked: false
         }
       }
-
-      setGeneratedDocuments(current => 
+uments(current => 
+      setGeneratedDocuments(current => c)
         current.map(doc => doc.id === collaborativeDocument.id ? updatedDocument : doc)
       )
       
       setCollaborativeDocument(updatedDocument)
       toast.success('Changes saved successfully')
-    }
-  }
 
+  const addComment = () => {
+    if (!newComment.trim() || !collaborativeDocument) return
   const addComment = () => {
     if (!newComment.trim() || !collaborativeDocument) return
 
@@ -1088,7 +1088,7 @@ Focus on aerospace documentation standards, DO-178C compliance, and technical wr
       id: `comment-${Date.now()}`,
       author: {
         id: 'current-user',
-        name: 'You',
+        name: 'You',-v.com',
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=You',
         email: 'you@aqua-v.com',
         status: 'online',
@@ -1097,8 +1097,6 @@ Focus on aerospace documentation standards, DO-178C compliance, and technical wr
       content: newComment,
       timestamp: new Date().toISOString(),
       resolved: false,
-      replies: []
-    }
 
     setComments(current => [...current, comment])
     setNewComment('')
