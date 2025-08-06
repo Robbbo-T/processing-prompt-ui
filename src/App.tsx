@@ -921,7 +921,6 @@ const sampleCollaborators: Collaborator[] = [
 function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
-  const [selectedCategory, setSelectedCategory] = useState('all')
   const [currentStep, setCurrentStep] = useState<GenerationStep>({ step: 'parsing', progress: 0 })
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null)
   const [customPrompt, setCustomPrompt] = useState('')
@@ -981,7 +980,6 @@ function App() {
   const [selectedPhase, setSelectedPhase] = useState('all')
 
   const phases = ['STR', 'CON', 'DES', 'DEV', 'TST', 'INT', 'CRT', 'PRD', 'OPS', 'MNT', 'REP', 'UPG', 'EXT', 'RET', 'AUD']
-  const categories = ['automation', 'compliance', '3d-modeling', 'collaboration', 'ai-powered']
   const categories = ['automation', 'compliance', '3d-modeling', 'collaboration', 'ai-powered']
 
   // AI Content Analysis function
@@ -1167,7 +1165,7 @@ Focus on aerospace documentation standards, DO-178C compliance, and technical wr
   }
 
   // Parse AQUA V. nomenclature
-  // Parse AQUA V. nomenclature
+  const parseNomenclature = (nomenclature: string): NomenclatureData | null => {
     try {
       const parts = nomenclature.trim().split('-')
       if (parts.length < 13) {
@@ -1211,7 +1209,6 @@ Focus on aerospace documentation standards, DO-178C compliance, and technical wr
 
     const phaseDescriptions: Record<string, string> = {
       'STR': 'Strategy',
-      'STR': 'Strategy',
       'CON': 'Conceptual',
       'DES': 'Design',
       'DEV': 'Development',
@@ -1222,6 +1219,7 @@ Focus on aerospace documentation standards, DO-178C compliance, and technical wr
     }
 
     return `${lineDescriptions[line] || line} ${phaseDescriptions[phase] || phase} ${doc} Document`
+  }
 
   const validateNomenclaturePattern = (nomenclature: NomenclatureData, template: Template): boolean => {
     if (!template.nomenclaturePattern) return true
@@ -3199,12 +3197,12 @@ Focus on aerospace documentation standards, DO-178C compliance, and technical wr
                                             {copied ? <Check size={16} /> : <Copy size={16} />}
                                             {copied ? 'Copied!' : 'Copy'}
                                           </Button>
-                                          <Badge variant="secondary">{currentDocument.format?.toUpperCase() || 'UNKNOWN'}</Badge>
+                                          <Badge variant="secondary">{currentDocument?.format?.toUpperCase() || 'UNKNOWN'}</Badge>
                                         </div>
                                       </div>
                                       <ScrollArea className="h-96 w-full border rounded-lg">
                                         <pre className="p-4 text-sm font-mono whitespace-pre-wrap">
-                                          {currentDocument.rawContent}
+                                          {currentDocument?.rawContent || 'No content available'}
                                         </pre>
                                       </ScrollArea>
                                       <div className="flex justify-end gap-2">
@@ -4115,93 +4113,3 @@ Focus on aerospace documentation standards, DO-178C compliance, and technical wr
 }
 
 export default App
-
-// Helper functions needed for the quiz functionality
-const parseNomenclature = (nomenclature: string): NomenclatureData | null => {
-  try {
-    const parts = nomenclature.trim().split('-')
-    if (parts.length < 13) {
-      throw new Error('Invalid nomenclature format')
-    }
-
-    const parsed: NomenclatureData = {
-      line: parts[0],
-      product: parts[1], 
-      variant: parts[2],
-      number: parts[3],
-      phase: parts[4],
-      criticality: parts[5],
-      document: parts[6],
-      application: parts[7],
-      method: parts.slice(8, 12).join('-'),
-      reality: parts[12],
-      utcs: parts[13],
-      regulatory: parts[14],
-      version: parts[15] || 'v1.0.0',
-      parsed: true,
-      description: generateNomenclatureDescription(parts[0], parts[1], parts[4], parts[6])
-    }
-
-    return parsed
-  } catch (error) {
-    return null
-  }
-}
-
-const generateNomenclatureDescription = (line: string, product: string, phase: string, doc: string): string => {
-  const lineDescriptions: Record<string, string> = {
-    'AMPEL3': 'AMPEL360 Aircraft',
-    'GAIAIR': 'GAIA Air & Space',
-    'ROBBBO': 'ROBBBO-T Robotics',
-    'QSERVS': 'Quantum Services',
-    'QPRODS': 'Quantum Products',
-    'INFRAD': 'Digital Infrastructure',
-    'AQUART': 'Cross-Program'
-  }
-
-  const phaseDescriptions: Record<string, string> = {
-    'STR': 'Strategy',
-    'CON': 'Conceptual',
-    'DES': 'Design',
-    'DEV': 'Development',
-    'TST': 'Testing',
-    'PRD': 'Production',
-    'MNT': 'Maintenance',
-    'OPS': 'Operations'
-  }
-
-  return `${lineDescriptions[line] || line} ${phaseDescriptions[phase] || phase} ${doc} Document`
-}
-
-const validateNomenclaturePattern = (nomenclature: NomenclatureData, template: Template): boolean => {
-  if (!template.nomenclaturePattern) return true
-  
-  const pattern = template.nomenclaturePattern
-  const actual = `${nomenclature.line}-${nomenclature.product}-${nomenclature.variant}-${nomenclature.number}-${nomenclature.phase}-${nomenclature.criticality}-${nomenclature.document}-${nomenclature.application}-${nomenclature.method}-${nomenclature.reality}-${nomenclature.utcs}-${nomenclature.regulatory}-${nomenclature.version}`
-  
-  // Simple wildcard matching
-  const regexPattern = pattern.replace(/\*/g, '[^-]+')
-  return new RegExp(`^${regexPattern}$`).test(actual)
-}
-
-const renderPreview = (content: string, format: string) => {
-  if (!content || !format) {
-    return <div className="text-muted-foreground">No content available</div>
-  }
-  
-  if (format === 'html') {
-    return <div dangerouslySetInnerHTML={{ __html: content }} className="prose max-w-none" />
-  } else if (format === 'markdown') {
-    // Simple markdown to HTML conversion for preview
-    const htmlContent = content
-      .replace(/^# (.*$)/gm, '<h1>$1</h1>')
-      .replace(/^## (.*$)/gm, '<h2>$1</h2>')
-      .replace(/^### (.*$)/gm, '<h3>$1</h3>')
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/\n/g, '<br>')
-    return <div dangerouslySetInnerHTML={{ __html: htmlContent }} className="prose max-w-none" />
-  } else {
-    return <pre className="whitespace-pre-wrap text-sm">{content}</pre>
-  }
-}
