@@ -27,6 +27,7 @@ import { Separator } from '@/components/ui/separator'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import UTCSValidator from '@/components/UTCSValidator'
+import AquaVDocumentViewer from '@/components/AquaVDocumentViewer'
 
 interface NomenclatureData {
   line: string
@@ -248,6 +249,99 @@ interface GenerationStep {
 }
 
   const sampleDocumentationSections: DocumentationSection[] = [
+  {
+    id: 'aqua-v-mmd',
+    title: 'AQUA V. Model Master Document (MMD)',
+    description: 'Aerospace & Quantum United Advanced Venture - Comprehensive strategic framework and technical architecture for quantum-enhanced aerospace systems',
+    icon: Rocket,
+    category: 'compliance',
+    status: 'published',
+    lastModified: new Date().toISOString(),
+    author: 'Amedeo Pelliccia, Quantum Aerospace Engineer',
+    wordCount: 15500,
+    readTime: 62,
+    tags: ['AQUA V.', 'quantum', 'aerospace', 'BWB-Q100', 'strategic framework', 'master document', 'GAIA AIR'],
+    children: [
+      {
+        id: 'aqua-v-strategic',
+        title: 'Strategic Framework',
+        description: 'Vision, mission, and six-layer architecture model',
+        icon: Target,
+        category: 'compliance',
+        status: 'published',
+        lastModified: new Date().toISOString(),
+        author: 'Amedeo Pelliccia',
+        wordCount: 2500,
+        readTime: 10,
+        tags: ['strategy', 'vision', 'architecture']
+      },
+      {
+        id: 'aqua-v-operations',
+        title: 'Concept of Operations',
+        description: 'Quantum-enhanced operational scenarios and modes',
+        icon: Gear,
+        category: 'automation',
+        status: 'published',
+        lastModified: new Date().toISOString(),
+        author: 'Amedeo Pelliccia',
+        wordCount: 2200,
+        readTime: 9,
+        tags: ['operations', 'quantum', 'scenarios']
+      },
+      {
+        id: 'aqua-v-products',
+        title: 'Product Portfolio',
+        description: 'AMPEL360, GAIA AIR & SPACE, ROBBBO-T, and Quantum systems',
+        icon: Cube,
+        category: '3d-modeling',
+        status: 'published',
+        lastModified: new Date().toISOString(),
+        author: 'Amedeo Pelliccia',
+        wordCount: 3200,
+        readTime: 13,
+        tags: ['BWB', 'UAV', 'robotics', 'quantum hardware']
+      },
+      {
+        id: 'aqua-v-quantum',
+        title: 'Quantum Engineering',
+        description: 'Quantum computing architecture and security framework',
+        icon: Brain,
+        category: 'ai-powered',
+        status: 'published',
+        lastModified: new Date().toISOString(),
+        author: 'Amedeo Pelliccia',
+        wordCount: 2800,
+        readTime: 11,
+        tags: ['quantum computing', 'QEC', 'QKD', 'hybrid processing']
+      },
+      {
+        id: 'aqua-v-ai',
+        title: 'Artificial Intelligence Framework',
+        description: 'WIR system and machine learning pipeline',
+        icon: CircleWavy,
+        category: 'ai-powered',
+        status: 'published',
+        lastModified: new Date().toISOString(),
+        author: 'Amedeo Pelliccia',
+        wordCount: 1800,
+        readTime: 7,
+        tags: ['AI', 'WIR', 'machine learning', 'neural networks']
+      },
+      {
+        id: 'aqua-v-business',
+        title: 'Business Architecture',
+        description: 'Financial model targeting €144B revenue by 2045',
+        icon: ChartLine,
+        category: 'compliance',
+        status: 'published',
+        lastModified: new Date().toISOString(),
+        author: 'Amedeo Pelliccia',
+        wordCount: 2000,
+        readTime: 8,
+        tags: ['finance', 'revenue', 'market strategy', 'partnerships']
+      }
+    ]
+  },
   {
     id: 'utcs-standard',
     title: 'UTCS-Optimized Identification Standard',
@@ -471,7 +565,120 @@ const sampleAIRefinements: AIRefinement[] = [
   }
 ]
 
-const sampleTemplates: Template[] = []
+const sampleTemplates: Template[] = [
+  {
+    id: 'aqua-v-strategic-plan',
+    name: 'AQUA V. Strategic Business Plan',
+    description: 'Comprehensive strategic planning template for quantum aerospace ventures',
+    phase: 'STR',
+    type: 'BSP',
+    docCode: 'BSP',
+    version: 'v2.0.0',
+    criticality: 'Critical',
+    lastModified: new Date().toISOString(),
+    nomenclaturePattern: 'AQUA*-*-*-*-STR-*-BSP-*',
+    compatibleRealities: ['PHYSL', 'VRTUL', 'MIXRL'],
+    requiredFields: ['strategic_objectives', 'financial_model', 'market_analysis']
+  },
+  {
+    id: 'bwb-q100-srs',
+    name: 'BWB-Q100 Software Requirements Specification',
+    description: 'Software requirements for Blended Wing Body quantum aircraft systems',
+    phase: 'DES',
+    type: 'SRS',
+    docCode: 'SRS',
+    version: 'v1.5.0',
+    criticality: 'Critical',
+    lastModified: new Date().toISOString(),
+    nomenclaturePattern: 'AMPEL3-BWB-Q100-*-DES-SE-SRS-*',
+    compatibleRealities: ['PHYSL', 'VRTUL', 'SIMUL'],
+    requiredFields: ['functional_requirements', 'performance_requirements', 'safety_requirements']
+  },
+  {
+    id: 'quantum-processing-hdd',
+    name: 'Quantum Processing Unit Hardware Design',
+    description: 'Hardware design documentation for quantum processing units in aerospace applications',
+    phase: 'DES',
+    type: 'HDD',
+    docCode: 'HDD',
+    version: 'v1.0.0',
+    criticality: 'Critical',
+    lastModified: new Date().toISOString(),
+    nomenclaturePattern: 'QPRODS-QPU-*-*-DES-SE-HDD-*',
+    compatibleRealities: ['PHYSL', 'HYBRD'],
+    requiredFields: ['quantum_specifications', 'error_correction', 'thermal_management']
+  },
+  {
+    id: 'gaia-uav-test-plan',
+    name: 'GAIA UAV Test Specification',
+    description: 'Comprehensive testing procedures for unmanned aerial vehicle systems',
+    phase: 'TST',
+    type: 'TST',
+    docCode: 'TSP',
+    version: 'v1.2.0',
+    criticality: 'Essential',
+    lastModified: new Date().toISOString(),
+    nomenclaturePattern: 'GAIAIR-*-*-*-TST-*-TSP-*',
+    compatibleRealities: ['PHYSL', 'SIMUL', 'AUGMT'],
+    requiredFields: ['test_scenarios', 'acceptance_criteria', 'safety_protocols']
+  },
+  {
+    id: 'robbbo-t-manufacturing',
+    name: 'ROBBBO-T Manufacturing Process Specification',
+    description: 'Manufacturing process documentation for robotic assembly systems',
+    phase: 'PRD',
+    type: 'MPS',
+    docCode: 'MPS',
+    version: 'v1.1.0',
+    criticality: 'Essential',
+    lastModified: new Date().toISOString(),
+    nomenclaturePattern: 'ROBBBO-*-*-*-PRD-*-MPS-*',
+    compatibleRealities: ['PHYSL', 'AUGMT', 'HYBRD'],
+    requiredFields: ['process_flow', 'quality_control', 'automation_specs']
+  },
+  {
+    id: 'quantum-security-framework',
+    name: 'Quantum Security Architecture Document',
+    description: 'Security framework for quantum-enhanced aerospace systems',
+    phase: 'DES',
+    type: 'SAD',
+    docCode: 'SAD',
+    version: 'v1.0.0',
+    criticality: 'Critical',
+    lastModified: new Date().toISOString(),
+    nomenclaturePattern: '*-*-*-*-DES-SE-SAD-*',
+    compatibleRealities: ['PHYSL', 'VRTUL', 'HYBRD'],
+    requiredFields: ['qkd_protocols', 'post_quantum_crypto', 'security_policies']
+  },
+  {
+    id: 'aqua-v-operations-manual',
+    name: 'AQUA V. Operations Manual',
+    description: 'Comprehensive operational procedures for quantum aerospace systems',
+    phase: 'OPS',
+    type: 'OM',
+    docCode: 'OPS',
+    version: 'v1.3.0',
+    criticality: 'Essential',
+    lastModified: new Date().toISOString(),
+    nomenclaturePattern: 'AQUART-*-*-*-OPS-*-OPS-*',
+    compatibleRealities: ['PHYSL', 'VRTUL', 'MIXRL', 'OPERT'],
+    requiredFields: ['operational_procedures', 'emergency_protocols', 'maintenance_schedules']
+  },
+  {
+    id: 'ai-wir-system-design',
+    name: 'WIR AI System Design Specification',
+    description: 'Well Invented Reality AI framework design and implementation',
+    phase: 'DES',
+    type: 'SDS',
+    docCode: 'SDS',
+    version: 'v2.1.0',
+    criticality: 'Critical',
+    lastModified: new Date().toISOString(),
+    nomenclaturePattern: 'INFRAD-*-*-*-DES-*-SDS-*',
+    compatibleRealities: ['VRTUL', 'AUGMT', 'MIXRL', 'EXTND'],
+    requiredFields: ['ai_architecture', 'learning_algorithms', 'ethical_constraints']
+  }
+]
 
 const sampleRepositories: Repository[] = [
   {
@@ -2191,7 +2398,7 @@ Focus on aerospace documentation standards, DO-178C compliance, and technical wr
           ) : (
             // Selected Section Content
             <div className="p-6">
-              <div className="max-w-4xl mx-auto">
+              <div className="max-w-6xl mx-auto">
                 <div className="flex items-center gap-4 mb-6">
                   <Button
                     variant="outline"
@@ -2209,28 +2416,32 @@ Focus on aerospace documentation standards, DO-178C compliance, and technical wr
                   </Badge>
                 </div>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-3">
-                      <selectedSection.icon size={24} />
-                      {selectedSection.title}
-                    </CardTitle>
-                    <CardDescription>{selectedSection.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="prose max-w-none">
-                      <p>This is where the actual documentation content would be displayed. The content would be rendered based on the selected section and would include:</p>
-                      <ul>
-                        <li>Interactive editing capabilities</li>
-                        <li>Real-time collaboration features</li>
-                        <li>AI-powered refinement suggestions</li>
-                        <li>Compliance validation</li>
-                        <li>3D model integration where applicable</li>
-                      </ul>
-                      <p>The static-interactive hybrid system would precompile this content for optimal performance while enabling rich interactive features on demand.</p>
-                    </div>
-                  </CardContent>
-                </Card>
+                {selectedSection.id === 'aqua-v-mmd' ? (
+                  <AquaVDocumentViewer />
+                ) : (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-3">
+                        <selectedSection.icon size={24} />
+                        {selectedSection.title}
+                      </CardTitle>
+                      <CardDescription>{selectedSection.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="prose max-w-none">
+                        <p>This is where the actual documentation content would be displayed. The content would be rendered based on the selected section and would include:</p>
+                        <ul>
+                          <li>Interactive editing capabilities</li>
+                          <li>Real-time collaboration features</li>
+                          <li>AI-powered refinement suggestions</li>
+                          <li>Compliance validation</li>
+                          <li>3D model integration where applicable</li>
+                        </ul>
+                        <p>The static-interactive hybrid system would precompile this content for optimal performance while enabling rich interactive features on demand.</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             </div>
           )}
