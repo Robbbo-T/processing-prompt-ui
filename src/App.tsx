@@ -1374,7 +1374,7 @@ Focus on aerospace documentation standards, DO-178C compliance, and technical wr
     }
   }
 
-  const getStatusColor = (status: Repository['status']) => {
+  const getRepositoryStatusColor = (status: Repository['status']) => {
     switch (status) {
       case 'active': return 'bg-green-100 text-green-800 border-green-200'
       case 'syncing': return 'bg-blue-100 text-blue-800 border-blue-200'
@@ -2370,9 +2370,9 @@ Focus on aerospace documentation standards, DO-178C compliance, and technical wr
                             <Badge variant="outline" className={getRealityColor(repo.reality)}>
                               {repo.reality}
                             </Badge>
-                            <Badge variant="outline" className={getStatusColor(repo.status)}>
-                              {repo.status}
-                            </Badge>
+                              <Badge variant="outline" className={getRepositoryStatusColor(repo.status)}>
+                                {repo.status}
+                              </Badge>
                           </CardTitle>
                           <CardDescription>{repo.description}</CardDescription>
                         </CardHeader>
@@ -3973,7 +3973,7 @@ Focus on aerospace documentation standards, DO-178C compliance, and technical wr
                                         {browsingRepository.path}
                                       </span>
                                       <Badge variant="secondary">{browsingRepository.type}</Badge>
-                                      <Badge variant="outline" className={getStatusColor(browsingRepository.status)}>
+                                      <Badge variant="outline" className={getRepositoryStatusColor(browsingRepository.status)}>
                                         {browsingRepository.status}
                                       </Badge>
                                     </div>
