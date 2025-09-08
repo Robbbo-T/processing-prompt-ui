@@ -2542,11 +2542,9 @@ Focus on aerospace documentation standards, DO-178C compliance, and technical wr
             )}
           </DialogContent>
         </Dialog>
-      </div>
-    </div>
-  )
 
-          <TabsContent value="quiz" className="space-y-6">
+        {/* Quiz Tab Content */}
+        <TabsContent value="quiz" className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-semibold">Driven Prompting Quiz</h2>
@@ -3830,7 +3828,7 @@ Focus on aerospace documentation standards, DO-178C compliance, and technical wr
                               <Badge variant="outline" className={getRealityColor(repo.reality)}>
                                 {repo.reality}
                               </Badge>
-                              <Badge variant="outline" className={getStatusColor(repo.status)}>
+                              <Badge variant="outline" className={getRepositoryStatusColor(repo.status)}>
                                 {repo.status}
                               </Badge>
                               <Badge variant="secondary" className="text-xs">
