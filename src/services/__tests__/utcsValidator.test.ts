@@ -11,7 +11,7 @@ import {
   extractUTCSCodes,
   validateContentUTCS,
   checkCodeImmutability
-} from '../src/services/utcsValidator'
+} from '../utcsValidator'
 
 describe('UTCS Validator', () => {
   describe('parseUTCS', () => {
