@@ -1,14 +1,13 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { useKV } from '@github/spark/hooks'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { 
-  Download, Robot, FolderOpen, GitBranch, Plus, MagnifyingGlass as Search, FunnelSimple as Filter, Code, Eye, FileText, Share, Copy, Check,
-  Users, ChatCircle as MessageCircle, Clock, Pencil, UserCircle, ChatCircle, PushPin, X, Play, ArrowRight, 
-  CheckCircle, Warning, Info, Lightning, Gear, Export, UploadSimple as Import, Tag, Hash, File, Folder, ArrowLeft,
-  Question as HelpCircle, BookOpen, Compass, Airplane, House, Rocket, Brain, Globe, Target, Database, Shield,
-  TreeStructure, FlowArrow, Cube, ChartLine, ListBullets, CalendarCheck, NotePencil, Microscope,
-  ChatCentered, Timer, CircleWavy, GraphicsCard, ChartPieSlice, MagnifyingGlass, Palette, Archive,
-  Desktop, CubeFocus, Monitor, Cube as ThreeDee, Shapes, GridFour, SquaresFour, Cpu, Lightning as Zap
+  Robot, Plus, MagnifyingGlass as Search, Code, Eye, FileText, Copy, Check,
+  Users, Clock, UserCircle, X, ArrowRight, GitBranch,
+  CheckCircle, Warning, Lightning, Export, ArrowLeft,
+  BookOpen, Compass, Airplane, Rocket, Brain, Globe, Shield,
+  TreeStructure, Cube, ChartLine, 
+  Desktop, Cube as ThreeDee, Cpu, Hash
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
@@ -17,15 +16,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Progress } from '@/components/ui/progress'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import UTCSValidator from '@/components/UTCSValidator'
 import AquaVDocumentViewer from '@/components/AquaVDocumentViewer'
 
@@ -161,20 +154,6 @@ function App() {
   const [documentationSections] = useKV<DocumentationSection[]>('documentation-sections', sampleDocumentationSections)
   const [complianceRequirements] = useKV<ComplianceRequirement[]>('compliance-requirements', sampleComplianceRequirements)
   const [aiRefinements] = useKV<AIRefinement[]>('ai-refinements', sampleAIRefinements)
-
-  const categories = ['automation', 'compliance', '3d-modeling', 'collaboration', 'ai-powered']
-
-  // Get category icon
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'automation': return Robot
-      case 'compliance': return Shield
-      case '3d-modeling': return Cube
-      case 'collaboration': return Users
-      case 'ai-powered': return Brain
-      default: return FileText
-    }
-  }
 
   // Get category color
   const getCategoryColor = (category: string) => {
