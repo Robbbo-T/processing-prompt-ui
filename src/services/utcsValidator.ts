@@ -1,51 +1,29 @@
 /**
- * 
- * 
- * - PPPVVVV: Product Variant (7 alphanumerics)
- * Where:
- * - YYYZZZ: UTCS Classification (6 digits)
- * - PPPVVVV: Product Variant (7 alphanumerics)
- * - APP: System/Technology ID (3 letters)
-import { PRODUCT_VARIANTS } from '../data/productVari
-
-
-  /** Product Variant (7 alphanumerics) */
-  /** System/Technology ID (3 letters) */
-  /** Installation/Unit string (without brackets) */
-
-}
-export interface UTCSValidationResult {
-  errors: stri
-  parsed?: ParsedUTCS
-}
-export interface InstallationUnit {
-  value: string
-}
-/**
+ * UTCS Validator Service
+ * Validates AMPEL360 Universal Technology Classification System codes
  */
-  // Use proper en
- 
 
-  return {
-    variant: match
-    installation: 
-  }
+export interface ParsedUTCS {
+  utcs: string          // 6 digits
+  variant: string       // 7 alphanumerics  
+  system: string        // 3 letters
+  installation: string  // installation string
+  fullCode: string
+}
+
+export interface UTCSValidationResult {
+  isValid: boolean
+  errors: string[]
+  warnings: string[]
   parsed?: ParsedUTCS
   suggestions?: string[]
-}
-
-export interface InstallationUnit {
-  type: 'single' | 'range' | 'list' | 'special'
-  value: string
-  expanded?: number[]
 }
 
 /**
  * Parse a UTCS code into its component parts
  */
 export function parseUTCS(code: string): ParsedUTCS | null {
-  // Use proper en-dash (U+2011) as specified in the standard
-  const pattern = /^([0-9]{6})[-‑]([A-Z0-9]{7})[-‑]([A-Z]{3})[-‑]\[(.+)\]$/
+  const pattern = /^([0-9]{6})-([A-Z0-9]{7})-([A-Z]{3})-\[(.+)\]$/
   const match = pattern.exec(code.trim())
   
   if (!match) return null
@@ -60,42 +38,6 @@ export function parseUTCS(code: string): ParsedUTCS | null {
 }
 
 /**
- * Parse installation string into structured units
- */
-export function parseInstallation(installation: string): InstallationUnit[] {
-  const units: InstallationUnit[] = []
-  
-  // Handle special cases
-  if (['ALL', 'STD', 'TST', 'DEV'].includes(installation)) {
-    return [{ type: 'special', value: installation }]
-  }
-  
-  // Split by commas and process each part
-  const parts = installation.split(',').map(p => p.trim())
-  
-  for (const part of parts) {
-    if (part.includes('‑') || part.includes('-')) {
-      // Range format: n-m or n‑m
-      const [start, end] = part.split(/[-‑]/).map(s => parseInt(s.trim()))
-      if (!isNaN(start) && !isNaN(end) && start <= end) {
-        const expanded = Array.from({ length: end - start + 1 }, (_, i) => start + i)
-        units.push({ type: 'range', value: part, expanded })
-      } else {
-        units.push({ type: 'single', value: part })
-      }
-    } else if (/^\d+$/.test(part)) {
-      // Single number
-      units.push({ type: 'single', value: part, expanded: [parseInt(part)] })
-    } else {
-      // List or other format
-      units.push({ type: 'list', value: part })
-    }
-  }
-  
-  return units
-}
-
-/**
  * Validate a complete UTCS code
  */
 export function validateUTCS(code: string): UTCSValidationResult {
@@ -103,7 +45,6 @@ export function validateUTCS(code: string): UTCSValidationResult {
   const warnings: string[] = []
   const suggestions: string[] = []
   
-  // Check for empty or undefined code
   if (!code || code.trim().length === 0) {
     return {
       isValid: false,
@@ -113,220 +54,81 @@ export function validateUTCS(code: string): UTCSValidationResult {
     }
   }
   
-  // Parse the code
   const parsed = parseUTCS(code)
   if (!parsed) {
     return {
       isValid: false,
       errors: [
         'Invalid UTCS code format',
-        'Expected format: YYYZZZ-PPPVVVV-APP-[INS]',
-        'Where YYYZZZ = 6 digits, PPPVVVV = 7 alphanumerics, APP = 3 letters, [INS] = installation in brackets'
+        'Expected format: YYYZZZ-PPPVVVV-APP-[INS]'
       ],
       warnings,
       suggestions: [
-        'Ensure you use the proper en-dash (‑) delimiter between blocks',
-  }
-  // Ch
-    e
-  }
-  
-    if (unit.type === 'range' && unit.expan
-        warnings.push('Installation
-      if (unit.expanded.length > 100) {
-      }
-  }
-  
-    warnings.push('Consider using a new
-  
-    isValid: errors.length === 0,
-    warnings,
-   
-}
-/**
- */
-  const suggestions: string[] = []
-  // If partial looks like a domain, suggest variants
-   
-  
-      commonVariants.forEach(variant => {
-      })
-  }
-  // If partial has domain and variant, sugges
-  if (partialMatch) {
-   
-  
-        .filter(([, info]) => {
-          if (variant.includes('Q') && info.family.incl
-          if (variant.includes('HYB') && info.family.includ
-        })
-   
-  
+        'Use proper hyphen (-) delimiters between blocks',
+        'Ensure installation is enclosed in square brackets'
+      ]
     }
-  
-}
-/**
- */
-  const
-}
-/**
- */
-  cod
-  h
-  
-  const hasErrors = results.some(r => !
-  return { codes, results, hasErrors }
-
- * 
-ex
-  
-    output += '✅ Valid UTCS code\
-      outpu
-      output 
-    }
-    output += '
-  
- 
-
-  }
-  if (result.warnings.length > 0) {
-   
-    })
-  
-  
-      output += `   💡 ${suggestion}\n`
-  }
-  return output
-
- * Check if a code follows the immutability prin
-export function checkCodeImmutability(oldCode: string, newCode: string
-  violations: string[]
-  const oldParsed = parseUTCS(oldCode)
-  const 
-  if 
   }
   
-    violations.push('UTCS classification (Block A) chan
+  // Validate UTCS classification
+  if (!/^[0-9]{6}$/.test(parsed.utcs)) {
+    errors.push('UTCS classification must be exactly 6 digits')
+  }
   
-    violations.push('
+  // Validate product variant
+  if (!/^[A-Z0-9]{7}$/.test(parsed.variant)) {
+    errors.push('Product variant must be exactly 7 uppercase alphanumeric characters')
+  }
   
-    violations.push('System/Technology ID (Block 
+  // Validate system trigram
+  if (!/^[A-Z]{3}$/.test(parsed.system)) {
+    errors.push('System/Technology ID must be exactly 3 uppercase letters')
+  }
+  
+  // Validate installation format
+  if (!parsed.installation || parsed.installation.length === 0) {
+    errors.push('Installation specification cannot be empty')
+  } else if (!/^[A-Z0-9,\-\s]+$/.test(parsed.installation)) {
+    warnings.push('Installation contains unusual characters')
+  }
   
   return {
-    violations
+    isValid: errors.length === 0,
+    errors,
+    warnings,
+    parsed,
+    suggestions
+  }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/**
+ * Generate a description for a UTCS code
+ */
+export function generateUTCSDescription(parsed: ParsedUTCS): string {
+  const utcsDescriptions: Record<string, string> = {
+    '090101': 'Quantum Navigation Systems',
+    '431210': 'Electric Propulsion Systems',
+    '310015': 'Flight Management Systems',
+    '024500': 'Electrical Power Systems'
+  }
+  
+  const variantDescriptions: Record<string, string> = {
+    'BWBQ100': 'Blended Wing Body Quantum 100',
+    'BWBQ250': 'Blended Wing Body Quantum 250',
+    'EVTCITY': 'Electric VTOL City',
+    'HYBE180': 'Hybrid-Electric 180'
+  }
+  
+  const systemDescriptions: Record<string, string> = {
+    'QNS': 'Quantum Navigation System',
+    'EPS': 'Electric Propulsion System',
+    'FMS': 'Flight Management System',
+    'STR': 'Primary Structure'
+  }
+  
+  const utcsDesc = utcsDescriptions[parsed.utcs] || `UTCS ${parsed.utcs}`
+  const variantDesc = variantDescriptions[parsed.variant] || parsed.variant
+  const systemDesc = systemDescriptions[parsed.system] || parsed.system
+  
+  return `${systemDesc} for ${variantDesc} - ${utcsDesc}`
+}

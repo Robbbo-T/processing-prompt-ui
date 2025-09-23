@@ -3,45 +3,42 @@
 
 @layer base {
   * {
-    @apply border-border
-  }
-  
-  body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  }
-  
-  .font-mono {
-    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    @apply border-border;
   }
 }
 
 :root {
-  --background: oklch(0.98 0.02 240);
-  --foreground: oklch(0.2 0.02 240);
+  /* Base colors that define the core visual identity */
+  --background: oklch(0.98 0.01 225);
+  --foreground: oklch(0.14 0.03 225);
 
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2 0.02 240);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2 0.02 240);
+  --card: oklch(0.99 0.01 225);
+  --card-foreground: oklch(0.14 0.03 225);
+  --popover: oklch(0.99 0.01 225);
+  --popover-foreground: oklch(0.14 0.03 225);
 
-  --primary: oklch(0.45 0.15 240);
-  --primary-foreground: oklch(0.98 0.02 240);
-  --secondary: oklch(0.95 0.02 240);
-  --secondary-foreground: oklch(0.25 0.02 240);
-  --accent: oklch(0.7 0.18 50);
-  --accent-foreground: oklch(0.98 0.02 240);
-  --destructive: oklch(0.6 0.2 20);
-  --destructive-foreground: oklch(0.98 0.02 240);
+  /* Action colors that represent interactive elements */
+  --primary: oklch(0.45 0.15 225);
+  --primary-foreground: oklch(0.98 0.01 225);
+  --secondary: oklch(0.95 0.03 225);
+  --secondary-foreground: oklch(0.14 0.03 225);
+  --accent: oklch(0.92 0.05 45);
+  --accent-foreground: oklch(0.14 0.03 45);
+  --destructive: oklch(0.5 0.2 20);
+  --destructive-foreground: oklch(0.98 0.01 20);
 
-  --muted: oklch(0.96 0.02 240);
-  --muted-foreground: oklch(0.5 0.02 240);
-  --border: oklch(0.9 0.02 240);
-  --input: oklch(0.9 0.02 240);
-  --ring: oklch(0.45 0.15 240);
+  /* Supporting UI colors for various states and elements */
+  --muted: oklch(0.95 0.02 225);
+  --muted-foreground: oklch(0.5 0.05 225);
+  --border: oklch(0.9 0.03 225);
+  --input: oklch(0.9 0.03 225);
+  --ring: oklch(0.45 0.15 225);
 
+  /* Border radius applied throughout the UI for consistent shape language */
   --radius: 0.5rem;
 }
 
+/* Map the CSS variables to Tailwind's theme system */
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -63,10 +60,67 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
+  /* Map radius variables to create a consistent rounding system */
   --radius-sm: calc(var(--radius) * 0.5);
   --radius-md: var(--radius);
   --radius-lg: calc(var(--radius) * 1.5);
   --radius-xl: calc(var(--radius) * 2);
   --radius-2xl: calc(var(--radius) * 3);
   --radius-full: 9999px;
+}
+
+/* Custom utilities for aerospace documentation */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.prose {
+  line-height: 1.75;
+}
+
+.prose h1,
+.prose h2,
+.prose h3 {
+  font-weight: 600;
+  margin-top: 1.5em;
+  margin-bottom: 0.75em;
+}
+
+.prose p {
+  margin-bottom: 1em;
+}
+
+.prose ul {
+  margin-bottom: 1em;
+  padding-left: 1.5em;
+}
+
+.prose li {
+  margin-bottom: 0.25em;
+}
+
+/* Animation utilities */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+/* Responsive design utilities */
+@media (max-width: 768px) {
+  .mobile-stack {
+    @apply flex-col space-y-4 space-x-0;
+  }
 }
